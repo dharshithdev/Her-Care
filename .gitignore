@@ -2,10 +2,4 @@
 # Node.js and Back-end Specific
 node_modules/
 package-lock.json
-yarn.lock
-npm-debug.log*
-yarn-error.log*
 .env
-config/local.env # Or any other environment-specific config files you don't want to track
-build/ # Often used for the production build of the back-end (if applicable)
-dist/  # Another common directory for built back-end code
