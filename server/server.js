@@ -12,6 +12,15 @@ app.use(express.json())
 const userRoutes = require('./Routes/userRoutes');
 app.use('/api/users', userRoutes);
 
+const sanOrderRoutes = require("./Routes/sanRoutes");
+app.use('/api/shop', sanOrderRoutes);
+
+const craveOrderRoutes = require("./Routes/craveRoutes");
+app.use("/api/shop", craveOrderRoutes);
+
+const appoinmentRoutes = require("./Routes/appoinmentRoutes");
+app.use('/api/appoinments', appoinmentRoutes);
+
 mongoose.connect(process.env.MONGO_URI).then(() => {
     console.log(`Connected to MongoDB`);
     app.listen(PORT, () => {

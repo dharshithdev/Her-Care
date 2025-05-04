@@ -28,7 +28,7 @@ const registerUser =  async (req, res) => {
         });
     
         await newUser.save();
-        const token = jwt.sign({id: newUser._id, email: newUser.email}, process.env.JWT_SECRET, {expiresIn: '5h'});
+        const token = jwt.sign({id: newUser._id, email: newUser.email}, process.env.JWT_SECRET, {expiresIn: '24h'});
         return res.status(201).json({message: "User Registered Successfully",token : token, id: newUser._id, email:newUser.email});
     
     } catch(error) {
@@ -50,7 +50,6 @@ const userLogIn = async (req, res) => {
 
         if(gotUser) {
             const userPassword = gotUser.password;
-
             const passwordMatch = await bcrypt.compare(password, userPassword);
             console.log(userPassword, password);
 
@@ -73,6 +72,7 @@ const updateProfile = async (req, res) => {
     try {
         const userId = req.user.id;
         const {name, email, phone} = req.body;
+        console.log("Got")
         const updatedUser = await User.findByIdAndUpdate(
             userId,
             {name, email, phone},
@@ -112,8 +112,43 @@ const addAddress = async (req, res) => {
         return res.status(201).json({message: "Address Successfull Added"});
 
     } catch(error) {
-
+        console.log("Error");
+        return res.status(400).json({message: "Internal Server Error"});
     }
 }
 
-module.exports = {registerUser, userLogIn, updateProfile, addAddress};
+const updateAddress = async (req, res) => {
+    try {
+
+        const userId = req.user.id;
+        const {addressId, state, pin, landmark} = req.body;
+
+        if(!addressId || !state || !pin || !landmark) {
+            return res.status(400).json({message: "Please Fill all the feilds"});
+        }
+
+        const useAddress = {
+            address: {
+                state: state,
+                pin: pin,
+                landmark: landmark
+            }
+        }
+
+        const updateAddress = await Address.findByIdAndUpdate(
+            addressId,
+            useAddress,    
+            {new: true}  
+        )
+
+        if(updateAddress) {
+            return res.status(201).json({message: "Updated Successfully"});
+        }
+
+    } catch(error) {
+        console.log('Error Occured');
+        return res.status(400).json({message: "Internal Server Error"});
+    }
+}
+
+module.exports = {registerUser, userLogIn, updateProfile, addAddress, updateAddress};
