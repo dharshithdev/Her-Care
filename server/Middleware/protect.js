@@ -11,7 +11,6 @@ const protect = async (req, res, next) => {
     try {
         decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decoded;
-        console.log(decoded);
         next();
     } catch (error) {
         console.log("Error Occured");
