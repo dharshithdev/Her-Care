@@ -1,5 +1,23 @@
 const CravingOrder = require("../Model/Craving");
 const Address = require("../Model/Address");
+const cravingItems = require("../Model/C-items");
+
+const fetchOrder = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const {_id} = req.body;
+        const productDetails = await cravingItems.findOne({_id});
+        console.log(productDetails);
+        if(!productDetails) {
+            return res.status(400).json({message: "Product Not found"});
+        }
+
+        return res.status(201).json({message: "Product Datas fetched Successfully", product: productDetails});
+    } catch (error) {
+        console.log(`Cannot fetch data ${error}`);
+        return res.status(500).json({message: "Internal Server Error"});
+    }
+}
 
 const placeOrder = async (req, res) => {
     try {
@@ -54,4 +72,4 @@ const cancelOrder = async (req, res) => {
     }
 }
 
-module.exports = { placeOrder, cancelOrder };
+module.exports = { placeOrder, cancelOrder, fetchOrder };

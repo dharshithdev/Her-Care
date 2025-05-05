@@ -13,8 +13,8 @@ const protect = async (req, res, next) => {
         req.user = decoded;
         next();
     } catch (error) {
-        console.log("Error Occured");
-        return res.status(500).json({message: "Internal Server Error"});
+        console.log("Error Occured token : ", error);
+        return res.status(500).json({message: "Internal Server Error While Authorization"});
     }
 }
 

@@ -1,5 +1,27 @@
 const SanitoryOrder = require("../Model/Sanitory");
+const sanitoryItems = require("../Model/S-Items");
 const Address = require("../Model/Address");
+
+const fetchOrder = async (req, res) => {
+    try {
+        const {_id} = req.body;
+        if(!_id) {
+            console.log(`Invalid ProductId`);
+            return res.status(400).json({message: "Invalid Product ID"});
+        };
+        console.log(_id);
+        const foundItem = await sanitoryItems.find({_id : _id});
+
+        if(!foundItem) {
+            return res.status(400).json({message: "No Such product"});
+        }
+
+        return res.status(200).json({product: foundItem});
+    } catch(error) {
+        console.log(`Error Occured while fetching ${error}`);
+        return res.status(500).json({message: "Internal Server Error"});
+    }
+}
 
 const placeOrder = async (req, res) => {
     try {
@@ -60,4 +82,4 @@ const cancelOrder = async (req, res) => {
 }
 
 
-module.exports = { placeOrder, cancelOrder };
+module.exports = { placeOrder, cancelOrder, fetchOrder };
