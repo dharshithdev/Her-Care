@@ -11,4 +11,4 @@ const SanitoryOrderSchema = new mongoose.Schema({
     status:{type: String, required: true, default: "Order Placed"}
 }, {timestamps: true});
 
-module.exports = mongoose.model('SanitoryOrder', SanitoryOrderSchema);
+module.exports = mongoose.model('SanitoryOrder', SanitoryOrderSchema); 

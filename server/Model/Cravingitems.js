@@ -1,15 +1,13 @@
 const mongoose = require("mongoose");
 
-const sanitoryItems = mongoose.Schema({
+const cravingItemsSchema =  mongoose.Schema({
     categoryId: {type: String, required: true},
     productName: {type: String, required: true},
-    brandName: {type: String, required: true},
     price: {type: Number, required: true},
     productImage1: {type: String, required: true},
     productImage2: {type: String, required: true},
     productImage3: {type: String, required: true},
-    description: {type: String, required: true},
-    size: {type: String, enum: ['s', 'l', 'xl', 'xxl'], required: true, default: 'l'}
+    description: {type: String, required: true}
 }, {timestamps: true});
 
-module.exports = mongoose.model('SanitoryItems', sanitoryItems);
+module.exports = mongoose.model('CravingItems', cravingItemsSchema);

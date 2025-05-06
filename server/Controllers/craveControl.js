@@ -1,6 +1,6 @@
 const CravingOrder = require("../Model/Craving");
 const Address = require("../Model/Address");
-const cravingItems = require("../Model/C-items");
+const cravingItems = require("../Model/Cravingitems");
 
 const fetchOrder = async (req, res) => {
     try {

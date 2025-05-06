@@ -1,16 +1,17 @@
 const SanitoryOrder = require("../Model/Sanitory");
-const sanitoryItems = require("../Model/S-Items");
+const sanitoryitems = require("../Model/SanitoryItems");
 const Address = require("../Model/Address");
+const mongoose = require("mongoose");
 
-const fetchOrder = async (req, res) => {
+const fetchOrder = async (req, res) => { 
     try {
         const {_id} = req.body;
         if(!_id) {
             console.log(`Invalid ProductId`);
             return res.status(400).json({message: "Invalid Product ID"});
         };
-        console.log(_id);
-        const foundItem = await sanitoryItems.find({_id : _id});
+
+        const foundItem = await sanitoryitems.findOne({_id});
 
         if(!foundItem) {
             return res.status(400).json({message: "No Such product"});
@@ -65,7 +66,7 @@ const cancelOrder = async (req, res) => {
     try {
         const {_id} = req.body;
         const id = _id;
-        const cancelOrder = await CravingOrder.findByIdAndUpdate(
+        const cancelOrder = await SanitoryOrder.findByIdAndUpdate(
             id,
             {status: "Cancelled"},
             {new : true}
@@ -81,5 +82,23 @@ const cancelOrder = async (req, res) => {
     }
 }
 
+const trackOrder = async (req, res) => {
+    try {
+        const {orderId} = req.body;
+        if(!orderId) {
+            return res.status(400).json({message: "Invalid Order ID"});
+        }
+    
+        const trackedOrder = await sanitoryitems.find({_id: orderId});
+        if(!trackOrder) {
+            return res.status(400).json({message: "No data found for this order"});
+        }
+
+        return res.status(200).json({message: "Data Fetched Successfully", data: trackedOrder});
+    } catch(error) {
+        console.log(`Error Occured ${error}`);
+        return res.status(500).json({message: "Internal Server Error"});
+    }
+}
 
 module.exports = { placeOrder, cancelOrder, fetchOrder };
