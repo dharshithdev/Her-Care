@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom'; // Assuming you are using react-router-dom
-
-// Asset imports (ensure these paths are correct for your project structure)
+import { Link } from 'react-router-dom'; 
 import registerImage from '../Assets/registerImage.jpeg';
 import googleLogo from '../Assets/google.png';
 import appleLogo from '../Assets/apple.png';
 
-// Simple Eye Icon SVGs for password visibility
 const EyeIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
     <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
@@ -95,7 +92,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen bg-pink-200 flex flex-col items-center justify-center py-8 px-4">
-      <h1 className="text-5xl font-bold text-pink-600 mb-6">HerCare</h1>
+      <h1 className="text-5xl font-bold text-pink-600 mb-6"><Link to="/index">HerCare</Link></h1>
       
       {formMessage.text && (
         <div 
@@ -112,7 +109,7 @@ const Register = () => {
       <div className="bg-white rounded-xl shadow-lg max-w-6xl w-full flex overflow-hidden">
         {/* Left side - Form */}
         <div className="w-full md:w-1/2 p-6 md:p-10">
-          <h2 className="text-3xl font-bold mb-5 text-gray-800">Get Started Now</h2>
+          <h2 className="text-3xl font-bold mb-5 text-gray-800">Get Started</h2>
           
           <form onSubmit={handleSubmit} className="space-y-4" noValidate> {/* noValidate disables browser's default validation */}
             <div>
@@ -231,7 +228,7 @@ const Register = () => {
           </div>
 
           <p className="mt-5 text-center text-sm text-gray-600">
-            Have an account? <Link to="/Login" className="text-pink-500 hover:text-pink-600 font-semibold hover:underline">Sign In</Link>
+            Have an account? <Link to="/login" className="text-pink-500 hover:text-pink-600 font-semibold hover:underline">Sign In</Link>
           </p>
         </div>
 
