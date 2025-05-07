@@ -81,7 +81,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-pink-200 flex flex-col items-center justify-center py-8 px-4">
+    <div className="min-h-screen bg-pink-100 flex flex-col items-center justify-center py-8 px-4">
       <h1 className="text-5xl font-bold text-pink-600 mb-6">HerCare</h1>
       
       {formMessage.text && (
@@ -167,13 +167,13 @@ const Login = () => {
                 onChange={handleChange}
                 className="h-4 w-4 text-pink-600 border-gray-300 rounded focus:ring-2 focus:ring-pink-400 transition-colors"
               />
-              <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-700">Remember me for 30 days</label>
+              <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-700">Remember me</label>
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 rounded-md bg-pink-500 hover:bg-pink-600 text-white font-semibold transition-colors duration-150 ease-in-out flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-pink-400 focus:ring-offset-2"
+              className="w-full py-3 rounded-md bg-pink-400 hover:bg-pink-600 text-white font-semibold transition-colors duration-150 ease-in-out flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-pink-400 focus:ring-offset-2"
             >
               {isLoading ? (
                 <>
