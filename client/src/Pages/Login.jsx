@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom'; // Assuming you are using react-router-dom
-import loginImage from "../Assets/loginImage.jpeg";
-import googleLogo from '../Assets/google.png';
-import appleLogo from '../Assets/apple.png';
+import { Link } from 'react-router-dom';
+import loginImage from "../Assets/loginImage.png"; // Ensure this path is correct
+import googleLogo from '../Assets/google.png'; // Ensure this path is correct
+import appleLogo from '../Assets/apple.png'; // Ensure this path is correct
 
-// Re-using Eye Icon SVGs from the registration page
 const EyeIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
     <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
@@ -64,17 +63,13 @@ const Login = () => {
     }
 
     setIsLoading(true);
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 2000));
     setIsLoading(false);
 
-    // Example: Check credentials (replace with actual logic)
     if (formData.email === "user@example.com" && formData.password === "password123") {
       setFormMessage({ type: 'success', text: 'Login successful! Redirecting...' });
-      // Redirect logic here (e.g., using react-router-dom history.push('/dashboard'))
     } else {
       setFormMessage({ type: 'error', text: 'Invalid email or password. Please try again.' });
-      // Clear password field on failed login for security, but keep email
       setFormData(prev => ({...prev, password: ''}));
     }
     console.log('Login attempt:', formData);
@@ -96,23 +91,39 @@ const Login = () => {
         </div>
       )}
 
-      {/* Note the order of image and form: image on left, form on right for md screens and up */}
-      <div className="bg-white rounded-xl shadow-lg max-w-6xl w-full flex flex-col-reverse md:flex-row overflow-hidden">
-        {/* Left side - Image (appears first in visual order on md screens) */}
-        <div className="hidden md:block md:w-1/2">
+      {/* Main container for side-by-side layout, NO SHADOW OR ROUNDING HERE */}
+      {/* flex-col-reverse md:flex-row to keep image first on md, form first in DOM for mobile (image shown separately on mobile) */}
+      <div className="max-w-6xl w-full flex flex-col-reverse md:flex-row items-stretch mx-auto">
+        
+        {/* Left side - Image Container (for md screens and up) */}
+        {/* This div is now just for layout and spacing for the image */}
+        <div className="hidden md:flex md:w-1/2 items-center justify-center p-6 overflow-hidden">
           <img
             src={loginImage} 
             alt="Calm illustration related to women's health and time management"
-            className="w-full h-full object-cover"
+            className="object-contain" // Changed from object-cover to ensure full image visibility
+            style={{
+              maxHeight: '85%', // Reduced image size
+              maxWidth: '100%',  // Ensures image fits within padded container
+            }}
           />
         </div>
 
-        {/* Right side - Form (appears second in visual order on md screens) */}
-        <div className="w-full md:w-1/2 p-6 md:p-10"> {/* Consistent padding */}
+        {/* Right side - Form: This is the self-contained card */}
+        <div className="w-full md:w-1/2 bg-white rounded-xl shadow-lg p-6 md:p-10 overflow-hidden">
+          {/* Mobile Image: Shown only on small screens, above the form content */}
+          <div className="block md:hidden w-full mb-6">
+            <img
+              src={loginImage} 
+              alt="Calm illustration related to women's health and time management"
+              className="w-full h-auto object-cover rounded-lg" 
+            />
+          </div>
+          
           <h2 className="text-3xl font-bold mb-2 text-gray-800">Welcome back!</h2>
           <p className="text-sm text-gray-600 mb-6">Sign in to access your HerCare account.</p>
           
-          <form onSubmit={handleSubmit} className="space-y-5" noValidate> {/* Increased space-y for login fields */}
+          <form onSubmit={handleSubmit} className="space-y-5" noValidate>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email address</label>
               <input
@@ -189,7 +200,7 @@ const Login = () => {
             </button>
           </form>
 
-          <div className="mt-6 flex items-center"> {/* Increased margin for divider */}
+          <div className="mt-6 flex items-center">
             <div className="flex-grow h-px bg-gray-300" />
             <span className="mx-2 text-sm text-gray-400">or</span>
             <div className="flex-grow h-px bg-gray-300" />
@@ -206,20 +217,13 @@ const Login = () => {
             </button>
           </div>
 
-          <p className="mt-6 text-center text-sm text-gray-600"> {/* Increased margin */}
+          <p className="mt-6 text-center text-sm text-gray-600">
             Don't have an account? <Link to="/register" className="text-pink-500 hover:text-pink-600 font-semibold hover:underline">Sign Up</Link>
           </p>
         </div>
-         {/* This div is for the image, moved to be first for flex order on md screens */}
-        <div className="block md:hidden w-full p-4"> {/* Image visible on mobile, above form */}
-          <img
-            src={loginImage} 
-            alt="Calm illustration related to women's health and time management"
-            className="w-full h-auto object-cover rounded-lg" 
-          />
-        </div>
       </div>
-       <footer className="mt-8 text-center text-sm text-pink-700">
+      
+      <footer className="mt-8 text-center text-sm text-pink-700">
         &copy; {new Date().getFullYear()} HerCare. All rights reserved.
       </footer>
     </div>

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom'; 
-import registerImage from '../Assets/registerImage.jpeg';
-import googleLogo from '../Assets/google.png';
-import appleLogo from '../Assets/apple.png';
+import { Link } from 'react-router-dom';
+import registerImage from '../Assets/registerImage.png'; // Ensure this path is correct
+import googleLogo from '../Assets/google.png'; // Ensure this path is correct
+import appleLogo from '../Assets/apple.png'; // Ensure this path is correct
 
 const EyeIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -17,7 +17,6 @@ const EyeSlashIcon = () => (
   </svg>
 );
 
-
 const Register = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -29,7 +28,7 @@ const Register = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [formMessage, setFormMessage] = useState({ type: '', text: '' }); // For success/error after submit
+  const [formMessage, setFormMessage] = useState({ type: '', text: '' });
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -37,11 +36,9 @@ const Register = () => {
       ...prevData,
       [name]: type === 'checkbox' ? checked : value,
     }));
-    // Clear error for this field on change
     if (errors[name]) {
       setErrors(prevErrors => ({ ...prevErrors, [name]: '' }));
     }
-    // Clear global form message
     setFormMessage({ type: '', text: '' });
   };
 
@@ -66,23 +63,18 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setFormMessage({ type: '', text: '' }); // Clear previous message
+    setFormMessage({ type: '', text: '' });
     if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
-    // Simulate API call (replace with your actual API call)
     await new Promise(resolve => setTimeout(resolve, 2000));
     setIsLoading(false);
 
-    // Example success/error handling
-    const isSuccess = Math.random() > 0.5; // Simulate success or failure
+    const isSuccess = Math.random() > 0.5;
     if (isSuccess) {
         setFormMessage({ type: 'success', text: 'Registration successful! Welcome to HerCare.' });
-        // Optionally reset form:
-        // setFormData({ name: '', email: '', password: '', agreeToTerms: false });
-        // setErrors({});
     } else {
         setFormMessage({ type: 'error', text: 'Registration failed. An unexpected error occurred. Please try again.' });
     }
@@ -100,18 +92,19 @@ const Register = () => {
             formMessage.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
           }`}
           role="alert"
-          aria-live="polite" // Informs screen readers about dynamic changes
+          aria-live="polite"
         >
           {formMessage.text}
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-lg max-w-6xl w-full flex overflow-hidden">
-        {/* Left side - Form */}
-        <div className="w-full md:w-1/2 p-6 md:p-10">
+      {/* Main container for side-by-side layout, NO SHADOW OR ROUNDING HERE */}
+      <div className="max-w-6xl w-full flex items-stretch mx-auto">
+        {/* Left side - Form: This is now the self-contained card */}
+        <div className="w-full md:w-1/2 bg-white rounded-xl shadow-lg p-6 md:p-10 overflow-hidden">
           <h2 className="text-3xl font-bold mb-5 text-gray-800">Get Started</h2>
           
-          <form onSubmit={handleSubmit} className="space-y-4" noValidate> {/* noValidate disables browser's default validation */}
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
               <input
@@ -232,16 +225,22 @@ const Register = () => {
           </p>
         </div>
 
-        {/* Right side - Image */}
-        <div className="hidden md:block md:w-1/2">
+        {/* Right side - Image Container: No background, no explicit rounding here, relies on page background */}
+        <div className="hidden md:flex md:w-1/2 items-center justify-center p-6 overflow-hidden">
+          {/* This div is now just for layout and spacing for the image */}
           <img
-            src={registerImage} // Make sure registerImage is correctly imported and path is valid
-            alt="Illustration of a woman holding an hourglass, surrounded by flowers and symbols of well-being" // More descriptive alt text
-            className="w-full h-full object-cover"
+            src={registerImage}
+            alt="Illustration of a woman holding an hourglass, surrounded by flowers and symbols of well-being"
+            className="object-contain" 
+            style={{
+              maxHeight: '85%', 
+              maxWidth: '100%',
+            }}
           />
         </div>
       </div>
-       <footer className="mt-8 text-center text-sm text-pink-700">
+      
+      <footer className="mt-8 text-center text-sm text-pink-700">
         &copy; {new Date().getFullYear()} HerCare. All rights reserved.
       </footer>
     </div>
