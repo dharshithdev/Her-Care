@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import loginImage from "../Assets/loginImage.png"; // Ensure this path is correct
 import googleLogo from '../Assets/google.png'; // Ensure this path is correct
 import appleLogo from '../Assets/apple.png'; // Ensure this path is correct
+import axios from 'axios';
 
 const EyeIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -60,17 +61,25 @@ const Login = () => {
     setFormMessage({ type: '', text: '' });
     if (!validateForm()) {
       return;
-    }
-
+    } 
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setIsLoading(false);
-
-    if (formData.email === "user@example.com" && formData.password === "password123") {
-      setFormMessage({ type: 'success', text: 'Login successful! Redirecting...' });
-    } else {
-      setFormMessage({ type: 'error', text: 'Invalid email or password. Please try again.' });
-      setFormData(prev => ({...prev, password: ''}));
+ 
+    try {
+          const result = await axios.post("http://localhost:5000/api/users/login", formData)
+          if(result.data.status) {
+            setFormMessage({ type: 'success', text: result.data.message});
+            localStorage.setItem('userData', JSON.stringify(result.data.userData));
+          }
+    } catch (error) {
+      if(error.response) {
+        setFormMessage({ type: 'error', text: error.response.data.message});
+      } else if (error.request) {
+        setFormMessage({ type: 'error', text: 'No response from the server' });
+      } else {
+        setFormMessage({ type: 'error', text: 'Something upexpected happened' });
+      }
+    } finally {
+      setIsLoading(false);
     }
     console.log('Login attempt:', formData);
   };
@@ -78,18 +87,6 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-pink-100 flex flex-col items-center justify-center py-8 px-4">
       <h1 className="text-5xl font-bold text-pink-600 mb-6">HerCare</h1>
-      
-      {formMessage.text && (
-        <div 
-          className={`mb-4 p-3 rounded-md text-sm w-full max-w-md text-center ${
-            formMessage.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-          }`}
-          role="alert"
-          aria-live="polite"
-        >
-          {formMessage.text}
-        </div>
-      )}
 
       {/* Main container for side-by-side layout, NO SHADOW OR ROUNDING HERE */}
       {/* flex-col-reverse md:flex-row to keep image first on md, form first in DOM for mobile (image shown separately on mobile) */}
@@ -119,7 +116,17 @@ const Login = () => {
               className="w-full h-auto object-cover rounded-lg" 
             />
           </div>
-          
+                {formMessage.text && (
+              <div 
+                className={`mb-4 p-3 rounded-md text-sm w-full max-w-md text-center ${
+                  formMessage.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                }`}
+                role="alert"
+                aria-live="polite"
+              >
+                {formMessage.text}
+              </div>
+            )}
           <h2 className="text-3xl font-bold mb-2 text-gray-800">Welcome back!</h2>
           <p className="text-sm text-gray-600 mb-6">Sign in to access your HerCare account.</p>
           

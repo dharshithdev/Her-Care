@@ -6,6 +6,13 @@ const userSchema = mongoose.Schema({
     phone:{type: Number, required:false, default: null},
     password:{type: String, required: true},
     lastDate:{type: Date, required: true},
+    lastDate:{type: Date, required: true},
+    lastDate:{type: Date, required: true},
+    lastDate:{type: Date, required: true},
+    lastDate:{type: Date, required: true},
+    lastDate:{type: Date, required: true},
+    lastDate:{type: Date, required: true},
+    lastDate:{type: Date, required: true},
 }, {timestamps: true});
 
 module.exports = mongoose.model('User', userSchema);
