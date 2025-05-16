@@ -4,6 +4,7 @@ import loginImage from "../Assets/loginImage.png"; // Ensure this path is correc
 import googleLogo from '../Assets/google.png'; // Ensure this path is correct
 import appleLogo from '../Assets/apple.png'; // Ensure this path is correct
 import axios from 'axios';
+import { useNavigate } from "react-router-dom"
 
 const EyeIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -30,6 +31,8 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formMessage, setFormMessage] = useState({ type: '', text: '' });
 
+  const navigate = useNavigate(); // Initialize the navigation function
+  
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prevData => ({
@@ -69,6 +72,7 @@ const Login = () => {
           if(result.data.status) {
             setFormMessage({ type: 'success', text: result.data.message});
             localStorage.setItem('userData', JSON.stringify(result.data.userData));
+            navigate("/track");
           }
     } catch (error) {
       if(error.response) {

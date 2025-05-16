@@ -4,6 +4,7 @@ import registerImage from '../Assets/registerImage.png';
 import googleLogo from '../Assets/google.png';
 import appleLogo from '../Assets/apple.png';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 // Reusable Eye Icons (DRY)
 const EyeIcon = () => (
@@ -40,6 +41,8 @@ const Register = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [formMessage, setFormMessage] = useState({ type: '', text: '' });
+
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -89,6 +92,7 @@ const Register = () => {
             if (result.data.status) {
                 setFormMessage({ type: 'success', text: result.data.message });
                 localStorage.setItem('userData', JSON.stringify(result.data.userData));
+                navigate("/track");
             } else {
                 setFormMessage({ type: 'error', text: result.data.message });
             }

@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom'; // Import Routes and Route, NO
 import Register from './Pages/Register';
 import Login from './Pages/Login';
 import Home from './Pages/Home'
+import Track from './Pages/Track';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/home" element={<Home />} />
         <Route path="/" element={<Home />} />
+        <Route path="/track" element={<Track />} />
       </Routes>
   );
 }
