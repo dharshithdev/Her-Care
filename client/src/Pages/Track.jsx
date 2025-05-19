@@ -1,176 +1,275 @@
-import React, { useEffect, useState } from 'react';
-import moment from 'moment';
-import { Doughnut, Bar } from 'react-chartjs-2';
-import 'chart.js/auto';
+import React, { useEffect, useRef } from "react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
 
-const Track = () => {
-  const [lastPeriodDate, setLastPeriodDate] = useState(moment('2025-04-01'));
-  const [periodDates, setPeriodDates] = useState([]);
-  const [today] = useState(moment());
-  const [messages, setMessages] = useState('');
+const lineData = [
+  { name: "Day 1", value: 45 },
+  { name: "Day 2", value: 60 },
+  { name: "Day 3", value: 35 },
+  { name: "Day 4", value: 30 },
+  { name: "Day 5", value: 10 },
+];
+
+const barData = [
+  { name: "Jan", value: 23 },
+  { name: "Feb", value: 24 },
+  { name: "Mar", value: 25 },
+  { name: "Apr", value: 24 },
+  { name: "May", value: 25 },
+  { name: "Jun", value: 26 },
+];
+
+
+
+const phases = [
+  { name: "Menstrual", value: 3, total: 5 },
+  { name: "Follicular", value: 4, total: 10 },
+  { name: "Ovulation", value: 1, total: 1 },
+  { name: "Luteal", value: 7, total: 14 },
+];
+
+const getNextNDates = (n) => {
+  const dates = [];
+  const today = new Date();
+  for (let i = -7; i < n; i++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + i);
+    dates.push(date);
+  }
+  return dates;
+};
+
+const TrackPage = () => {
+  const scrollRef = useRef(null);
+  const today = new Date();
+  const dates = getNextNDates(14);
+  const currentPhase = "Follicular";
+
+  const phaseColors = {
+    Menstrual: "#F9A8D4",
+    Follicular: "#F9A8D4",
+    Ovulation: "#F9A8D4",
+    Luteal: "#F9A8D4",
+  };
+  phaseColors[currentPhase] = "#EC4899";
 
   useEffect(() => {
-    calculateNextPeriods(lastPeriodDate);
-    showMessages(lastPeriodDate);
-  }, [lastPeriodDate]);
-
-  const calculateNextPeriods = (lastDate) => {
-    const cycleLength = 30;
-    const periodLength = 5;
-    const periodDatesArr = [];
-
-    let nextStart = moment(lastDate);
-    while (nextStart.isBefore(moment().endOf('month'))) {
-      const nextEnd = moment(nextStart).add(periodLength - 1, 'days');
-      for (let m = moment(nextStart); m.isSameOrBefore(nextEnd); m.add(1, 'days')) {
-        periodDatesArr.push(m.format('YYYY-MM-DD'));
-      }
-      nextStart = moment(nextStart).add(cycleLength, 'days');
+    const scrollContainer = scrollRef.current;
+    const todayIndex = 7;
+    if (scrollContainer) {
+      const scrollTo = scrollContainer.children[todayIndex]?.offsetLeft - 150;
+      scrollContainer.scrollLeft = scrollTo;
     }
-    setPeriodDates(periodDatesArr);
-  };
-
-  const showMessages = (lastDate) => {
-    const nextPeriod = moment(lastDate).add(30, 'days');
-    const daysLeft = nextPeriod.diff(moment(), 'days');
-
-    if (daysLeft > 10) setMessages('Low chance of getting pregnant');
-    else if (daysLeft > 5) setMessages(`Your period is expected in ${daysLeft} days`);
-    else if (daysLeft > 0) setMessages(`Get ready, period is in ${daysLeft} days`);
-    else setMessages('You might be on your period');
-  };
-
-  const cyclePhases = [
-    { name: 'Menstrual', days: 5 },
-    { name: 'Follicular', days: 9 },
-    { name: 'Ovulation', days: 1 },
-    { name: 'Luteal', days: 15 },
-  ];
-
-  const totalDaysSince = moment().diff(lastPeriodDate, 'days') % 30;
-  let stageIndex = 0;
-  let dayCounter = 0;
-  for (let i = 0; i < cyclePhases.length; i++) {
-    if (totalDaysSince < dayCounter + cyclePhases[i].days) {
-      stageIndex = i;
-      break;
-    }
-    dayCounter += cyclePhases[i].days;
-  }
-
-  const prevMonths = [
-    { month: 'January', length: 29 },
-    { month: 'February', length: 31 },
-    { month: 'March', length: 30 },
-    { month: 'April', length: 28 },
-    { month: 'May', length: 32 },
-  ];
+  }, []);
 
   return (
-    <div className="p-6 bg-pink-50 min-h-screen space-y-12">
-      {/* Section 1: Scrollable Period Days */}
-      <div className="bg-white p-6 rounded-xl shadow-lg">
-        <h2 className="text-2xl font-bold text-pink-700 mb-6">Your Period Tracker</h2>
+    <div className="min-h-screen bg-pink-300 text-black p-4 overflow-y-auto">
+      {/* SECTION 1 */}
+      <div className="bg-pink-200 p-6 rounded-lg mb-10 min-h-[100vh] shadow-lg">
+      <div className="text-center mb-6 bg-pink-500 text-white py-3 rounded-lg text-lg font-semibold">
+          Track
+        </div>
+        {/* Date scroller */}
         <div
-          className="flex space-x-6 overflow-x-auto pb-6 hide-scrollbar"
-          style={{ scrollSnapType: 'x mandatory' }}
+          className="flex overflow-x-auto space-x-6 pb-4 no-scrollbar"
+          ref={scrollRef}
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
-          {[...Array(30)].map((_, i) => {
-            const date = moment().startOf('month').add(i, 'days');
-            const isPeriod = periodDates.includes(date.format('YYYY-MM-DD'));
-            const intensity = isPeriod ? (i % 5) + 1 : 0;
-            const bgColor = isPeriod ? `rgba(255,105,97,${0.2 + 0.2 * intensity})` : '#fce4ec';
+          {dates.map((date, index) => {
+            const isToday = date.toDateString() === today.toDateString();
+            const periodIndex = index - 7;
+
+            let bgColor = "#FFE4E6"; // Default pink for all dates
+            if (periodIndex >= 0 && periodIndex < 5) {
+              const periodShades = [
+                "#EF4444", // Day 2: High
+                "#DC2626", // Day 1: Very High
+                "#F87171", // Day 3: Moderate
+                "#FCA5A5", // Day 4: Low
+                "#FECACA", // Day 5: Very Low
+              ];
+              bgColor = periodShades[periodIndex];
+            }
+
             return (
               <div
-                key={i}
-                className="flex flex-col items-center justify-center px-8 py-8 rounded-2xl shadow-md text-center"
-                style={{
-                  backgroundColor: bgColor,
-                  minWidth: '140px',
-                  minHeight: '140px',
-                  scrollSnapAlign: 'start',
-                  flexShrink: 0,
-                }}
+                key={index}
+                className={`flex flex-col items-center justify-center min-w-[140px] h-[140px] text-lg p-4 rounded-3xl border-2 ${
+                  isToday ? "border-black scale-110" : "border-transparent"
+                } shadow`}
+                style={{ backgroundColor: bgColor }}
               >
-                <span className="text-lg font-semibold text-pink-800">{date.format('ddd')}</span>
-                <span className="text-3xl font-bold text-pink-900">{date.date()}</span>
+                <div className="text-sm font-semibold">
+                  {date.toLocaleDateString("en-US", { weekday: "short" })}
+                </div>
+                <div className="text-3xl font-bold">{date.getDate()}</div>
               </div>
             );
           })}
         </div>
-        <div className="mt-4 p-4 bg-pink-100 rounded-lg text-pink-800 text-center font-medium">
-          {messages}
+
+        {/* Period Status Buttons */}
+        <div className="flex justify-between items-center mt-6 gap-4">
+          <button className="flex-1 bg-pink-500 text-white py-3 rounded-xl">
+            MIGHT BE ON PERIODS
+          </button>
+          <button className="flex-1 bg-pink-500 text-white py-3 rounded-xl">
+            HEAVY FLOW
+          </button>
+          <button className="flex-1 bg-pink-500 text-white py-3 rounded-xl">
+            REGULAR PERIOD
+          </button>
+        </div>
+
+        {/* Line Graph */}
+        <div className="w-full h-[360px] mt-8">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={lineData}>
+              <XAxis dataKey="name" />
+              <YAxis domain={[0, 60]} />
+              <Tooltip />
+              <Line
+                type="monotone"
+                dataKey="value"
+                stroke="#EC4899"
+                strokeWidth={5}
+                dot
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
-      {/* Section 2: Bigger Donut Cycle Phases */}
-      <div className="bg-white p-6 rounded-xl shadow-lg">
-        <h2 className="text-2xl font-bold text-pink-700 mb-6">Cycle Stages</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 justify-center">
-          {cyclePhases.map((phase, i) => {
-            const currentValue = totalDaysSince - dayCounter + (i === stageIndex ? 1 : 0);
-            const data = {
-              labels: [phase.name, 'Remaining'],
-              datasets: [
-                {
-                  data: [
-                    Math.min(currentValue, phase.days),
-                    phase.days - Math.min(currentValue, phase.days),
-                  ],
-                  backgroundColor: [i === stageIndex ? '#d6336c' : '#f78da7', '#fce4ec'],
-                  borderWidth: 0,
-                },
-              ],
-            };
-            return (
-              <div className="text-center w-48 h-48" key={i}>
-                <Doughnut
-                  data={data}
-                  options={{ cutout: '70%', responsive: true, maintainAspectRatio: false }}
-                />
-                <p className="mt-2 text-pink-700 font-semibold">{phase.name}</p>
-              </div>
-            );
-          })}
+      {/* SECTION 2 */}
+      <div className="bg-pink-200 p-6 rounded-lg mb-10 min-h-[100vh] shadow-lg">
+      <div className="text-center mb-6 bg-pink-500 text-white py-3 rounded-lg text-lg font-semibold">
+          Phase Progress
+        </div>
+
+        {/* Donut Charts */}
+        <div className="flex justify-between items-center flex-wrap lg:flex-nowrap gap-4">
+          {phases.map((phase, index) => (
+            <div
+              key={index}
+              className="flex flex-col items-center w-full lg:w-1/4 h-[300px]"
+            >
+              <ResponsiveContainer width="100%" height="80%">
+                <PieChart>
+                  <Pie
+                    data={[
+                      phase,
+                      { name: "Remaining", value: phase.total - phase.value },
+                    ]}
+                    dataKey="value"
+                    innerRadius={60}
+                    outerRadius={120}
+                    startAngle={90}
+                    endAngle={-270}
+                    paddingAngle={0}
+                  >
+                    <Cell fill={phaseColors[phase.name]} />
+                    <Cell fill="#F3F4F6" />
+                  </Pie>
+                  <Tooltip formatter={(value) => `${value} days completed`} />
+                </PieChart>
+              </ResponsiveContainer>
+              <p className="mt-2 font-semibold text-center">{phase.name}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Ovulation Badge */}
+        <div className="mt-6 flex justify-end">
+          <div className="bg-pink-500 text-white px-6 py-3 rounded-md text-sm shadow-lg">
+            Ovulation in 6 D
+          </div>
+        </div>
+
+        {/* Phase Info Table */}
+        <div className="bg-pink-50 rounded-xl mt-8 w-[60%] mx-auto shadow text-sm">
+          <table className="w-full text-left">
+            <tbody>
+              <tr className="bg-pink-100 text-pink-700 font-semibold">
+                <td className="px-5 py-4">Current Phase</td>
+                <td className="px-5 py-4">Follicular</td>
+              </tr>
+              <tr className="hover:bg-pink-100 transition">
+                <td className="px-5 py-4 font-semibold">Chance of Pregnancy</td>
+                <td className="px-5 py-4">Low</td>
+              </tr>
+              <tr className="bg-pink-100 text-pink-700 font-semibold">
+                <td className="px-5 py-4">Days to next cycle</td>
+                <td className="px-5 py-4">18</td>
+              </tr>
+              <tr className="bg-pink-100 text-pink-700 font-semibold">
+                <td className="px-5 py-4">Variations</td>
+                <td className="px-5 py-4">8%</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      {/* Section 3: Bar Chart for Previous Cycles */}
-      <div className="bg-white p-6 rounded-xl shadow-lg">
-        <h2 className="text-2xl font-bold text-pink-700 mb-4">Past 5 Months</h2>
-        <div className="w-full md:w-2/3 mx-auto h-64">
-          <Bar
-            data={{
-              labels: prevMonths.map((m) => m.month),
-              datasets: [
-                {
-                  label: 'Cycle Length (Days)',
-                  data: prevMonths.map((m) => m.length),
-                  backgroundColor: '#f06292',
-                  borderRadius: 8,
-                },
-              ],
-            }}
-            options={{
-              maintainAspectRatio: false,
-              scales: {
-                y: {
-                  beginAtZero: true,
-                  ticks: { color: '#d6336c' },
-                },
-                x: {
-                  ticks: { color: '#d6336c' },
-                },
-              },
-              plugins: {
-                legend: { display: false },
-              },
-            }}
-          />
+      {/* SECTION 3 */}
+      <div className="bg-pink-200 p-6 rounded-lg min-h-[100vh] shadow-lg">
+        <div className="text-center mb-6 bg-pink-500 text-white py-3 rounded-lg text-lg font-semibold">
+          Last 6 months
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Bar Graph */}
+          <div className="w-full lg:w-2/3">
+            <ResponsiveContainer width="100%" height={600}>
+              <BarChart data={barData}>
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="value" fill="#F472B6" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Monthly Table */}
+          <div className="w-full lg:w-1/3">
+            <table className="w-full text-left bg-pink-50 rounded-xl shadow overflow-hidden text-sm">
+              <thead className="bg-pink-100 text-pink-700">
+                <tr>
+                  <th className="px-4 py-3">MONTH</th>
+                  <th className="px-4 py-3">DATE</th>
+                  <th className="px-4 py-3">REGULARITY</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { month: "JANUARY", date: "24", reg: "REGULAR" },
+                  { month: "FEBRUARY", date: "25", reg: "REGULAR" },
+                  { month: "MARCH", date: "23", reg: "REGULAR" },
+                  { month: "APRIL", date: "35", reg: "IRREGULAR" },
+                ].map((row, index) => (
+                  <tr key={index} className="hover:bg-pink-100 transition">
+                    <td className="px-4 py-3">{row.month}</td>
+                    <td className="px-4 py-3">{row.date}</td>
+                    <td className="px-4 py-3">{row.reg}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default Track;
+export default TrackPage;

@@ -14,8 +14,7 @@ const fetchUserData = async (req, res) => {
         long: { menstrual: 6, follicular: 14, ovulation: 1, luteal: 16 }
     };
 
-    const findLength = (start, end) => {
-        const cycleLengthDays = differenceInDays(parseISO(start), parseISO(end));
+    const findCycle = (cycleLengthDays) => {
         var cycleLength = phaseCycleLength.short;
         if(cycleLengthDays >= 21 && cycleLengthDays <= 25) {
             cycleLength = phaseCycleLength.short;
@@ -26,8 +25,12 @@ const fetchUserData = async (req, res) => {
         } else {
             cycleLength = "irregular";
         }
+        return (cycleLength);
+    }
 
-        return [cycleLengthDays, cycleLength];
+    const findLength = (start, end) => {
+        const cycleLengthDays = differenceInDays(parseISO(start), parseISO(end));
+        return [cycleLengthDays, findCycle(cycleLengthDays)];
     }
 
     const calculateLength = async (userId) => {
@@ -42,7 +45,13 @@ const fetchUserData = async (req, res) => {
         const fixedFollicularLength = Math.round((totalCycleLength / cycles.length) - (fixedLutealLength + fixedMenstrualLength));
         const fixedOvulationLength = 1;
 
-        return [fixedMenstrualLength, fixedLutealLength, fixedFollicularLength, fixedOvulationLength];
+        const c_length = findCycle(totalCycleLength);
+        c_length.menstrual = fixedFollicularLength;
+        c_length.follicular = fixedFollicularLength;
+        c_length.ovulation = fixedOvulationLength;
+        c_length.luteal = fixedLutealLength;
+
+        return [totalCycleLength, c_length];
     }
 
     try {
@@ -58,10 +67,12 @@ const fetchUserData = async (req, res) => {
             return res.status(404).json({status: false, message: "No data found on User"});
         }
 
+        
+
         const totalCycleCount = await User.countDocuments({userId: gotUser._id});
 
         if(totalCycleCount < 3) {
-            const periodData = findLength(recentDate1, recentDate2);
+            const periodData = findLength(recentDay1, recentDay2);
         } else {
             const periodData = calculateLength(gotUser._id);
         }
@@ -76,9 +87,9 @@ const fetchUserData = async (req, res) => {
 
 const registerUser =  async (req, res) => {
     try{
-        const {name, email, password, recentDate1, recentDate2} = req.body;
+        const {name, email, password, recentDay1, recentDay2} = req.body;
 
-        if(!name || !email || !password || !recentDate1 || recentDate2) {
+        if(!name || !email || !password || !recentDay1 || !recentDay2) {
             return res.status(400).json({status: false, message: "Please fill all the feilds"});
         }
     
@@ -94,17 +105,17 @@ const registerUser =  async (req, res) => {
         const newUser = new User({
             name,
             email,
-            password: hashedPassword,
-            lastDate
+            password: hashedPassword
         });
     
         await newUser.save();
-
+        const cycleLength = differenceInDays(parseISO(recentDay1), parseISO(recentDay2));
+        console.log(cycleLength);
         const newCycle = new Cycle({
             userId: newUser._id,
             cycleLength,
-            recentDate1,
-            recentDate2
+            recentDay1,
+            recentDay2
         });
 
         await newCycle.save();

@@ -13,6 +13,6 @@ router.post('/login', userLogIn);
 router.put('/update-profile', protect, updateProfile);
 router.post('/add-address', protect, addAddress);
 router.put('/update-address', protect, updateAddress);
-router.put('/fetch-data', protect, fetchUserData);
+router.get('/fetch-data', fetchUserData);
 
 module.exports = router;

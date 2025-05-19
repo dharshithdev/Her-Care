@@ -12,8 +12,8 @@ const cycleSchema = mongoose.Schema({
     flow3:{type: Number, required: false, default: 3},
     flow4:{type: Number, required: false, default: 2},
     flow5:{type: Number, required: false, default: 1},
-    recentDate1: {type: String, required: true},
-    recentDate2: {type: String, required: true}
+    recentDay1: {type: String, required: true},
+    recentDay2: {type: String, required: true}
 }, {timestamps: true});
 
 module.exports = mongoose.model('Cycle', cycleSchema);
