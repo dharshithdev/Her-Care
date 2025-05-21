@@ -3,11 +3,11 @@ const Address = require("../Model/Address");
 const Cycle = require("../Model/Cycle");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { differenceInDays, parseISO } = require('date-fns');
+const { differenceInDays, parseISO, addDays } = require('date-fns');
 require("dotenv").config()
 
 const fetchUserData = async (req, res) => {
-
+ 
     const phaseCycleLength = {
         short: { menstrual: 4, follicular: 7, ovulation: 1, luteal: 12 },
         average: { menstrual: 5, follicular: 10, ovulation: 1, luteal: 14 },
@@ -28,13 +28,19 @@ const fetchUserData = async (req, res) => {
         return (cycleLength);
     }
 
-    const findLength = (start, end) => {
+    const findLength = async (start, end, userId) => {
         const cycleLengthDays = differenceInDays(parseISO(start), parseISO(end));
-        return [cycleLengthDays, findCycle(cycleLengthDays)];
+        const totalCycleCount = await Cycle.countDocuments({userId: gotUser._id});
+
+        if(totalCycleCount <= 3) {
+            return [cycleLengthDays, findCycle(cycleLengthDays)];
+        } else {
+            calculateLength(userId);
+        }
     }
 
     const calculateLength = async (userId) => {
-        const cycles = await Cycle.find({ userId }).sort({ createdAt: -1 }).limit(3);
+        const cycles = await Cycle.find({ userId });
 
         const totalCycleLength = cycles.reduce((sum, cycle) => sum + cycles.cycleLength, 0);
         const totalMenstrualLength = cycles.reduce((sum, cycle) => sum + cycles.menstrualLength, 0);
@@ -54,30 +60,53 @@ const fetchUserData = async (req, res) => {
         return [totalCycleLength, c_length];
     }
 
-    try {
-        const {userId} = req.body;
+    const updateDate = async (userId, lastDate, cycleCount, phaseDatas) => {
+        const futureDate = addDays(lastDate, cycleCount);
+        if (new Date() > futureDate) {
+            // Insert into db new cycle data
+            const month = new Date(lastDate);
+            const monthName = date.toLocaleString("en-US", { month: "long" });
+            const expectedDate = addDays(date, cycleCount);
+            const newCycle = new Cycle({
+                userId,
+                cycleLength: cycleCount,
+                menstrualLength: phaseDatas.menstrual,
+                follicularLength: phaseDatas.follicular,
+                ovulationLength: phaseDatas.ovulationLength,
+                lutealLength: phaseDatas.lutealLength,
+                recentDay: lastDate,
+                expectedDate,
+                month
+            });
 
+            await newCycle.save();
+            
+            if(newCycle) {
+                res.status(200).json({message: "Date Updated"});
+            }
+        }
+    }
+
+    try {
+
+        const {userId} = req.body;
         if(!userId) {
             return res.status(400).json({status: false, message: "Invalid user Id"});
         }
 
         const gotUser = await User.findOne({_id: userId});
-
         if(!gotUser) {
             return res.status(404).json({status: false, message: "No data found on User"});
         }
 
-        
+        const totalCycleCount = await Cycle.countDocuments({userId: gotUser._id});
+        const lastRecord = await Cycle.findOne({ userId }).sort({ createdAt: -1 }); // Fetch latest document 
 
-        const totalCycleCount = await User.countDocuments({userId: gotUser._id});
+        const periodData = findLength(recentDay, recentDay2, gotUser._id);
 
-        if(totalCycleCount < 3) {
-            const periodData = findLength(recentDay1, recentDay2);
-        } else {
-            const periodData = calculateLength(gotUser._id);
-        }
+        updateDate(userId, lastRecord.recentDay, periodData[0], periodData[1]);
 
-        return res.status(200).json({status: true, message: "Data fetched Successfully", userData: gotUser, periodsData: periodData});
+        return res.status(200).json({status: true, message: "Data fetched Successfully", userData: gotUser, periodsData: periodData, lastRecord: lastRecord});
 
     } catch (error) {
         console.log(`Internal server Error`);
@@ -85,11 +114,38 @@ const fetchUserData = async (req, res) => {
     }
 }
 
+const addUnexpectedPeriod = async (req, res) => {
+    const {userId, lastDate} = req.body;
+    const date =  new Date(recentDay)
+    const expectedDate = addDays(date, cycleLength);
+    const monthName = date.toLocaleString("en-US", { month: "long" });
+    const periodData = findLength(lastDate, date, userId)
+    const newCycle = new Cycle({
+        userId,
+        cycleLength: periodData[0],
+        menstrualLength: periodData[1].menstrual,
+        follicularLength: periodData[1].follicular,
+        ovulationLength: periodData[1].ovulation,
+        lutealLength: periodData[1].luteal,
+        regularity: "irregular",
+        addUnexpected: true,
+        recentDay: lastDate,
+        expectedDate,
+        month: monthName
+    });
+
+    await newCycle.save();
+
+    if(newCycle) {
+        res.status(200).json({message: "Cycle Updated Successfully"});
+    }
+}
+
 const registerUser =  async (req, res) => {
     try{
-        const {name, email, password, recentDay1, recentDay2} = req.body;
+        const {name, email, password, recentDay, recentDay2} = req.body;
 
-        if(!name || !email || !password || !recentDay1 || !recentDay2) {
+        if(!name || !email || !password || !recentDay || !recentDay2) {
             return res.status(400).json({status: false, message: "Please fill all the feilds"});
         }
     
@@ -109,13 +165,21 @@ const registerUser =  async (req, res) => {
         });
     
         await newUser.save();
-        const cycleLength = differenceInDays(parseISO(recentDay1), parseISO(recentDay2));
-        console.log(cycleLength);
+        const periodData = findLength(recentDay, recentDay2, newUser._id);
+        const cycleLength = periodData[0];
+        const date =  new Date(recentDay)
+        const expectedDate = addDays(date, cycleLength);
+        const monthName = date.toLocaleString("en-US", { month: "long" });
         const newCycle = new Cycle({
             userId: newUser._id,
             cycleLength,
-            recentDay1,
-            recentDay2
+            menstrualLength: periodData[1].menstrual,
+            follicularLength: periodData[1].follicular,
+            ovulationLength: periodData[1].ovulation,
+            lutealLength: periodData[1].luteal,
+            recentDay,
+            expectedDate,
+            month: monthName
         });
 
         await newCycle.save();

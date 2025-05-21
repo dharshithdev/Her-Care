@@ -1,43 +1,7 @@
 import React, { useEffect, useRef } from "react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-} from "recharts";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell,} from "recharts";
+import MainHeader from '../Components/MainHeader';
 
-const lineData = [
-  { name: "Day 1", value: 45 },
-  { name: "Day 2", value: 60 },
-  { name: "Day 3", value: 35 },
-  { name: "Day 4", value: 30 },
-  { name: "Day 5", value: 10 },
-];
-
-const barData = [
-  { name: "Jan", value: 23 },
-  { name: "Feb", value: 24 },
-  { name: "Mar", value: 25 },
-  { name: "Apr", value: 24 },
-  { name: "May", value: 25 },
-  { name: "Jun", value: 26 },
-];
-
-
-
-const phases = [
-  { name: "Menstrual", value: 3, total: 5 },
-  { name: "Follicular", value: 4, total: 10 },
-  { name: "Ovulation", value: 1, total: 1 },
-  { name: "Luteal", value: 7, total: 14 },
-];
 
 const getNextNDates = (n) => {
   const dates = [];
@@ -50,11 +14,35 @@ const getNextNDates = (n) => {
   return dates;
 };
 
+const lineData = [
+  { name: "Day 1", value: 45 },
+  { name: "Day 2", value: 60 },
+  { name: "Day 3", value: 35 },
+  { name: "Day 4", value: 30 },
+  { name: "Day 5", value: 10 },
+]; 
+
+const barData = [
+  { name: "Jan", value: 23 },
+  { name: "Feb", value: 24 },
+  { name: "Mar", value: 25 },
+  { name: "Apr", value: 24 },
+  { name: "May", value: 25 },
+  { name: "Jun", value: 26 },
+];
+
+const phases = [
+  { name: "Menstrual", value: 3, total: 5 },
+  { name: "Follicular", value: 4, total: 10 },
+  { name: "Ovulation", value: 1, total: 1 },
+  { name: "Luteal", value: 7, total: 14 },
+];
+
 const TrackPage = () => {
   const scrollRef = useRef(null);
   const today = new Date();
   const dates = getNextNDates(14);
-  const currentPhase = "Follicular";
+  const currentPhase = "Luteal";
 
   const phaseColors = {
     Menstrual: "#F9A8D4",
@@ -76,10 +64,13 @@ const TrackPage = () => {
   return (
     <div className="min-h-screen bg-pink-300 text-black p-4 overflow-y-auto">
       {/* SECTION 1 */}
+      
+      <MainHeader />
       <div className="bg-pink-200 p-6 rounded-lg mb-10 min-h-[100vh] shadow-lg">
-      <div className="text-center mb-6 bg-pink-500 text-white py-3 rounded-lg text-lg font-semibold">
-          Track
+      <div className="text-center mb-12 bg-white-500 text-white py-3 rounded-lg text-lg font-semibold">
+          
         </div>
+        
         {/* Date scroller */}
         <div
           className="flex overflow-x-auto space-x-6 pb-4 no-scrollbar"
@@ -190,9 +181,9 @@ const TrackPage = () => {
         </div>
 
         {/* Ovulation Badge */}
-        <div className="mt-6 flex justify-end">
+        <div className="mt-6 flex justify-center">
           <div className="bg-pink-500 text-white px-6 py-3 rounded-md text-sm shadow-lg">
-            Ovulation in 6 D
+            Ovulation in 6 Days
           </div>
         </div>
 
@@ -204,7 +195,7 @@ const TrackPage = () => {
                 <td className="px-5 py-4">Current Phase</td>
                 <td className="px-5 py-4">Follicular</td>
               </tr>
-              <tr className="hover:bg-pink-100 transition">
+              <tr className="hover:bg-pink-100 transition ">
                 <td className="px-5 py-4 font-semibold">Chance of Pregnancy</td>
                 <td className="px-5 py-4">Low</td>
               </tr>

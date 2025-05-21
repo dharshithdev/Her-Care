@@ -34,7 +34,7 @@ const Register = () => {
         recentDay1: '',
         recentDay2: '',
         agreeToTerms: false,
-    });
+    }); 
 
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
