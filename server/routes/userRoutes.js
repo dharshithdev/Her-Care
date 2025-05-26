@@ -15,4 +15,4 @@ router.post('/add-address', protect, addAddress);
 router.put('/update-address', protect, updateAddress);
 router.get('/fetch-data', fetchUserData);
 
-module.exports = router;
+module.exports = router; 

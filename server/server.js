@@ -2,21 +2,25 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose")
 require("dotenv").config();
+const path = require("path");
 
-const PORT = process.env.PORT; 
+const PORT = process.env.PORT;
 
 const app = express();
 app.use(cors());
 app.use(express.json())
 
+app.use("/admin/categoryImages", express.static(path.join(__dirname, "admin/categoryImages")));
+app.use("/admin/productImages", express.static(path.join(__dirname, "admin/productImages")));
+
 const userRoutes = require('./Routes/userRoutes');
 app.use('/api/users', userRoutes);
  
-const sanOrderRoutes = require("./Routes/sanRoutes");
-app.use('/api/shop', sanOrderRoutes);
+const sanOrderRoutes = require("./Routes/sanRoutes"); 
+app.use('/api/sanitory', sanOrderRoutes);
 
 const craveOrderRoutes = require("./Routes/craveRoutes");
-app.use("/api/shop", craveOrderRoutes);
+app.use("/api/crave", craveOrderRoutes);
 
 const appoinmentRoutes = require("./Routes/appoinmentRoutes");
 app.use('/api/appoinments', appoinmentRoutes);
