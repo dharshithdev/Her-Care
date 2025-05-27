@@ -7,6 +7,7 @@ import Track from './Pages/Track';
 import Explore from './Pages/Explore';
 import Shop from './Pages/Shopping/Shop';
 import Product from './Pages/Shopping/Product';
+import Cart from './Pages/Shopping/Cart';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/explore" element={<Explore />} />
         <Route path="/shop" element={<Shop />} />
         <Route path="/product/:productId" element={<Product />} />
+        <Route path="/cart" element={<Cart />} />
 
       </Routes>
   );

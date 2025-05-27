@@ -50,6 +50,32 @@ const removeFromCart = async (req, res) => {
       return res.status(500).json({ message: "Server error while removing item." });
     }
   };
+
+  const fetchFromCart = async (req, res) => {
+    try {
+      const { userId } = req.query;
+      if (!userId) {
+        return res.status(400).json({ status: false, message: "User ID is required" });
+      }
+  
+      const cartItems = await Cart.find({ userId });
+  
+      const detailedCart = await Promise.all(
+        cartItems.map(async (item) => {
+          const product = await sanitoryitems.findById(item.productId);
+          return {
+            ...item._doc,
+            product
+          };
+        })
+      );
+  
+      res.json({ status: true, cart: detailedCart });
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+      res.status(500).json({ status: false, message: "Server error" });
+    }
+  };
   
 const changeCart = async (req, res) => {
     console.log("Inside change")
@@ -142,43 +168,47 @@ const fetchOrder = async (req, res) => {
     }
 }
 
-const placeOrder = async (req, res) => {
+const placeOrderFromCart = async (req, res) => {
     try {
-        const userId = req.user.id;
-        const {productId, quantity, price, mode, addressId} = req.body;
-
-        if(!productId || !quantity || !price || !mode) {
-            console.log(productId, quantity, price, mode);
-            return res.status(400).json({message: "Please fill all the details"});
-        }
-
-        const total = price * quantity;
-        console.log(userId);
-        const findAddress = await Address.findOne({userId})
-        
-        if(!findAddress) {
-            return res.status(400).json({message: "User Have no Saved Address"});
-        }
-        
-        const newAddressId = findAddress._id;
-        const newSanitoryOrder = new SanitoryOrder({
-            userId,
-            productId,
-            quantity,
-            price,
-            total,
-            mode,
-            addressId : newAddressId
+      const { userId, addressId, mode } = req.body;
+  
+      if (!userId || !addressId || !mode) {
+        return res.status(400).json({ status: false, message: "Missing required fields" });
+      }
+  
+      const cartItems = await Cart.find({ userId });
+      if (cartItems.length === 0) {
+        return res.status(400).json({ status: false, message: "Cart is empty" });
+      }
+  
+      // Loop through cart and create an order for each product
+      for (const item of cartItems) {
+        const product = await sanitoryitems.findById(item.productId);
+        if (!product) continue;
+  
+        const order = new SanitoryOrder({
+          userId,
+          productId: item.productId,
+          quantity: item.quantity,
+          price: product.price,
+          total: product.price * item.quantity,
+          mode,         // e.g., "Cash on Delivery"
+          addressId,    // from user address selection
+          status: "Order Placed"
         });
-
-        await newSanitoryOrder.save();
-
-        return res.status(201).json({message: `Order Placed Successfully, Address Id : ${newAddressId}`});
-    } catch(error) {
-        console.log("Error Occured in Controller", error);
-        return res.status(500).json({message: "Internal Server Eror"});
+  
+        await order.save();
+      }
+  
+      // Clear user's cart after placing order
+      await Cart.deleteMany({ userId });
+  
+      res.status(200).json({ status: true, message: "Order placed successfully" });
+    } catch (error) {
+      console.error("Error placing order:", error);
+      res.status(500).json({ status: false, message: "Server error while placing order" });
     }
-};
+  };
 
 const cancelOrder = async (req, res) => {
     try {
@@ -219,4 +249,4 @@ const trackOrder = async (req, res) => {
     }
 }
 
-module.exports = { placeOrder, cancelOrder, fetchOrder, getCategories, getSanitoryProducts, getProductDetails, addToCart, removeFromCart, changeCart };
+module.exports = { cancelOrder, fetchOrder, getCategories, getSanitoryProducts, getProductDetails, addToCart, removeFromCart, changeCart, fetchFromCart, placeOrderFromCart };
