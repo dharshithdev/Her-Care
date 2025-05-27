@@ -7,39 +7,77 @@ const mongoose = require("mongoose");
 
 const addToCart = async (req, res) => {
     try {
-        const {productId, userId} = req.body;
+        const {productId, userId, quantity} = req.body;
 
-        const existingItem = await Cart.find({userId, productId});
+        const existingItem = await Cart.findOne({userId, productId});
 
         if(existingItem) {
-            const _id = existingItem._id;
-            const quantity = existingItem.quantity + 1;
-            const updateQuantity = Cart.findByIdAndUpdate(
-                _id,
-                {quantity},
-                {new: true}
-            );
-
-            if(updateQuantity) {
-                return res.status(200).json({status: true});
-            } else {
-                return res.status(400).json({status: false, message: "Something went wrong"});
-            }
-        }
-
-        const newCart = new Cart({
-            productId,
-            userId,
-            quantity:1
-        });
-
-        newCart.save();
-
-        if(newCart) {
-            return res.status(200).json({status: true});
+            existingItem.quantity = existingItem.quantity + 1;
+            await existingItem.save();
+            return res.status(200).json({ status: true, message: "Cart item quantity updated." });
+        } else {
+            const newCart = new Cart({
+                productId,
+                userId,
+                quantity: quantity // Use the quantity sent from frontend (should be 1 for initial add)
+            });
+            await newCart.save();
+            return res.status(200).json({ status: true, message: "Product added to cart." });
         }
     } catch(error) {
         return res.status(500).json({message: "Error occured"});
+    }
+}
+
+const removeFromCart = async (req, res) => {
+    try {
+      const { productId, userId } = req.body;
+      const item = await Cart.findOne({ productId, userId });
+  
+      if (!item) {
+        return res.status(404).json({ message: "Item not found in cart." });
+      }
+  
+      if (item.quantity > 1) {
+        item.quantity -= 1;
+        await item.save();
+        return res.status(200).json({ status: true, message: "Quantity reduced." });
+      } else {
+        await Cart.deleteOne({ _id: item._id });
+        return res.status(200).json({ status: true, message: "Item removed from cart." });
+      }
+    } catch (error) {
+      return res.status(500).json({ message: "Server error while removing item." });
+    }
+  };
+  
+const changeCart = async (req, res) => {
+    console.log("Inside change")
+    const {productId, userId, quantity} = req.body;
+    console.log(quantity);
+    const findItem = await Cart.findOne({productId, userId});
+    console.log(findItem);
+    
+    if(findItem) {
+        if (quantity == 0) {
+            const deleteItem = await Cart.deleteOne({productId, userId});
+    } else {
+        findItem.quantity = quantity;
+        findItem.save();
+    }
+    } else {
+        const newItem = new Cart({
+            userId,
+            productId,
+            quantity,
+        });
+        await newItem.save();
+    }
+
+    if(findItem || deleteItem || newItem) {
+        return res.status(200).json({status: true});
+    } else {
+        return res.status(200).json({status: false});
     }
 }
 
@@ -181,4 +219,4 @@ const trackOrder = async (req, res) => {
     }
 }
 
-module.exports = { placeOrder, cancelOrder, fetchOrder, getCategories, getSanitoryProducts, getProductDetails, addToCart };
+module.exports = { placeOrder, cancelOrder, fetchOrder, getCategories, getSanitoryProducts, getProductDetails, addToCart, removeFromCart, changeCart };

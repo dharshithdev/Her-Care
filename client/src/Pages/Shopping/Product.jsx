@@ -12,6 +12,7 @@ const Product = () => {
   const [mainImage, setMainImage] = useState('');
   const [toastMessage, setToastMessage] = useState(null);
   const [toastType, setToastType] = useState(null);
+  const [quantity, setQuantity] = useState(1); // <-- NEW
 
   const location = useLocation();
   const { productId: idFromParams } = useParams();
@@ -49,7 +50,7 @@ const Product = () => {
     setMainImage(imageName);
   };
 
-  const handleAddToCart = async () => {
+  const handleChangeCart = async () => {
     let userId = null;
     try {
       const userDataString = localStorage.getItem('userData');
@@ -76,20 +77,21 @@ const Product = () => {
     }
 
     try {
-      const res = await axios.post("http://localhost:5000/api/sanitory/add-cart", {
+      const res = await axios.post("http://localhost:5000/api/sanitory/change-cart", {
         productId: product._id,
         userId: userId,
+        quantity: quantity,
       });
 
       if (res.data.status) {
-        setToastMessage("Product added to cart!");
+        setToastMessage("Cart Updated!");
         setToastType("success");
       } else {
         setToastMessage("Failed to add product to cart.");
         setToastType("error");
       }
     } catch (err) {
-      console.error("Error adding to cart:", err);
+      console.log("Error adding to cart:", err);
       const errorMessage = err.response?.data?.message || "Error adding to cart. Please try again.";
       setToastMessage(errorMessage);
       setToastType("error");
@@ -97,6 +99,9 @@ const Product = () => {
       setTimeout(() => setToastMessage(null), 3000);
     }
   };
+
+  const increaseQuantity = () => setQuantity(prev => prev + 1);
+  const decreaseQuantity = () => setQuantity(prev => (prev > 1 ? prev - 1 : 0));
 
   if (loading) {
     return <div className="min-h-screen pt-40 px-6 pb-20 flex justify-center items-center">Loading ...</div>;
@@ -173,25 +178,42 @@ const Product = () => {
             <p className="text-xl text-gray-700 mb-2">Brand: {product.brandName}</p>
             <p className="text-2xl text-pink-600 font-semibold mb-4">₹{product.price}</p>
             <p className="text-gray-600 mb-4">{product.description}</p>
-            <p className="text-gray-500 mb-2">Size: {product.size}</p>
+            <p className="text-gray-500 mb-4">Size: {product.size}</p>
+
+            {/* Quantity Selector */}
+            <div className="flex items-center gap-4 mb-4">
+              <button
+                className="w-9 h-9 rounded-full bg-pink-200 text-pink-700 font-bold hover:bg-pink-300"
+                onClick={decreaseQuantity}
+              >
+                −
+              </button>
+              <span className="text-xl font-medium">{quantity}</span>
+              <button
+                className="w-9 h-9 rounded-full bg-pink-200 text-pink-700 font-bold hover:bg-pink-300"
+                onClick={increaseQuantity}
+              >
+                +
+              </button>
+            </div>
+
+            {/* Add to Cart */}
             <button
-              onClick={handleAddToCart}
-              className="bg-pink-500 text-white px-6 py-3 rounded-md text-lg hover:bg-pink-600 transition mt-4"
+              onClick={handleChangeCart}
+              className="bg-pink-500 text-white px-6 py-3 rounded-md text-lg hover:bg-pink-600 transition"
             >
               Add to Cart
             </button>
           </div>
         </div>
 
-        {/* --- NEW: Related Products Section --- */}
-        {/* Only render if product is loaded and has a category ID */}
+        {/* Related Products Section */}
         {product.categoryId && (
           <RelatedProducts
             currentCategoryId={product.categoryId}
             currentProductId={product._id}
           />
         )}
-        {/* --- END NEW --- */}
       </div>
     </div>
   );
