@@ -8,6 +8,8 @@ import Explore from './Pages/Explore';
 import Shop from './Pages/Shopping/Shop';
 import Product from './Pages/Shopping/Product';
 import Cart from './Pages/Shopping/Cart';
+import AboutUs from './Pages/About';
+import DailyCheckIn from './Pages/Daily';
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
         <Route path="/shop" element={<Shop />} />
         <Route path="/product/:productId" element={<Product />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/aboutus" element={<AboutUs   />} />
+        <Route path="/daily" element={<DailyCheckIn   />} />
 
       </Routes>
   );
