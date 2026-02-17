@@ -6,9 +6,8 @@ import Footer from "../Components/Footer";
 import axios from 'axios';
 import { format, addDays, isSameDay, differenceInDays, subMonths } from 'date-fns';
 
-// Helper for scroll-triggered animations
+// Helper for scroll-triggered animations — ref goes on the chart wrapper div
 const useInView = () => {
-    const [isVisible, setIsVisible] = useState(false);
     const [key, setKey] = useState(0);
     const ref = useRef(null);
 
@@ -16,19 +15,16 @@ const useInView = () => {
         const observer = new IntersectionObserver(
             ([entry]) => {
                 if (entry.isIntersecting) {
-                    setKey(prev => prev + 1); // increments every time it enters view, forcing remount
-                    setIsVisible(true);
-                } else {
-                    setIsVisible(false);
+                    setKey(prev => prev + 1); // force remount every time it scrolls into view
                 }
             },
-            { threshold: 0.1 }
+            { threshold: 0.3 }
         );
         if (ref.current) observer.observe(ref.current);
         return () => observer.disconnect();
     }, []);
 
-    return [ref, isVisible, key];
+    return [ref, key];
 };
 
 const TrackPage = () => {
@@ -38,10 +34,9 @@ const TrackPage = () => {
     const [selectedFlow, setSelectedFlow] = useState("regular");
     const today = new Date();
 
-    // 1. REFS FOR EACH CHART SECTION
-    const [lineSectionRef, lineVisible, lineKey] = useInView();
-    const [pieSectionRef, pieVisible, pieKey] = useInView();
-    const [barSectionRef, barVisible, barKey] = useInView();
+    const [lineChartRef, lineKey] = useInView();
+    const [pieChartRef, pieKey] = useInView();
+    const [barChartRef, barKey] = useInView();
 
     const fetchTrackingData = async () => {
         try {
@@ -138,7 +133,7 @@ const TrackPage = () => {
             <div className="max-w-7xl mx-auto p-4 lg:p-8 pt-24 lg:pt-32 space-y-12">
                 
                 {/* SECTION 1: CYCLE TRACKER & LINE CHART */}
-                <section ref={lineSectionRef} className="bg-white p-6 lg:p-10 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden">
+                <section className="bg-white p-6 lg:p-10 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-rose-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-50" />
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-4 relative z-10">
                         <div className="flex items-center gap-4">
@@ -177,7 +172,8 @@ const TrackPage = () => {
                         </button>
                     </div>
 
-                    <div className="w-full h-[320px] mt-12 bg-slate-50/80 backdrop-blur-sm rounded-[2rem] p-6 border border-white">
+                    {/* ref on the chart wrapper div, NOT the section */}
+                    <div ref={lineChartRef} className="w-full h-[320px] mt-12 bg-slate-50/80 backdrop-blur-sm rounded-[2rem] p-6 border border-white">
                         <ResponsiveContainer width="100%" height="100%" key={`line-${lineKey}`}>
                             <LineChart data={flowChartData}>
                                 <Line 
@@ -185,8 +181,7 @@ const TrackPage = () => {
                                     dataKey="value" 
                                     stroke="#E11D48" 
                                     strokeWidth={6} 
-                                    dot={false} 
-                                    isAnimationActive={lineVisible} 
+                                    dot={false}
                                     animationDuration={1200} 
                                 />
                                 <Tooltip />
@@ -196,12 +191,14 @@ const TrackPage = () => {
                 </section>
 
                 {/* SECTION 2: PHASE ANALYTICS (PIE CHARTS) */}
-                <section ref={pieSectionRef} className="bg-white p-8 lg:p-12 rounded-[2.5rem] shadow-sm border border-slate-100">
+                <section className="bg-white p-8 lg:p-12 rounded-[2.5rem] shadow-sm border border-slate-100">
                     <div className="flex items-center gap-4 mb-12">
                         <div className="p-4 bg-indigo-50 text-indigo-500 rounded-2xl"><FiActivity size={28} /></div>
                         <h2 className="text-3xl font-black tracking-tight text-slate-900">Phase Analytics</h2>
                     </div>
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-10">
+
+                    {/* ref on the pie grid wrapper */}
+                    <div ref={pieChartRef} className="grid grid-cols-2 lg:grid-cols-4 gap-10">
                         {phasesUI.map((phase, index) => (
                             <div key={index} className="flex flex-col items-center group relative">
                                 <div className="relative w-full h-[200px]">
@@ -214,8 +211,7 @@ const TrackPage = () => {
                                                 outerRadius={85} 
                                                 startAngle={90} 
                                                 endAngle={-270} 
-                                                stroke="none" 
-                                                isAnimationActive={pieVisible}
+                                                stroke="none"
                                                 animationDuration={1000}
                                             >
                                                 <Cell fill={phaseColors[phase.name]} />
@@ -232,6 +228,7 @@ const TrackPage = () => {
                             </div>
                         ))}
                     </div>
+
                     <div className="mt-16 flex flex-col xl:flex-row items-stretch gap-8">
                         <div className="bg-gradient-to-br from-rose-500 to-rose-600 text-white p-8 rounded-[2rem] shadow-xl xl:w-1/3 flex flex-col justify-center items-center">
                             <span className="text-xs font-bold uppercase tracking-[0.3em] opacity-80 mb-2">Next Milestone</span>
@@ -250,26 +247,28 @@ const TrackPage = () => {
                 </section>
 
                 {/* SECTION 3: CYCLE HISTORY (BAR CHART) */}
-                <section ref={barSectionRef} className="bg-slate-900 p-8 lg:p-12 rounded-[3rem] shadow-2xl text-white">
+                <section className="bg-slate-900 p-8 lg:p-12 rounded-[3rem] shadow-2xl text-white">
                     <div className="flex items-center gap-4 mb-12">
                         <div className="p-4 bg-white/10 text-rose-400 rounded-2xl"><FiDroplet size={28} /></div>
                         <h2 className="text-3xl font-black tracking-tight">Cycle History</h2>
                     </div>
                     <div className="grid lg:grid-cols-3 gap-12">
-                        <div className="lg:col-span-2 h-[450px] bg-white/5 rounded-[2.5rem] p-8">
+
+                        {/* ref on the bar chart wrapper div */}
+                        <div ref={barChartRef} className="lg:col-span-2 h-[450px] bg-white/5 rounded-[2.5rem] p-8">
                             <ResponsiveContainer width="100%" height="100%" key={`bar-${barKey}`}>
                                 <BarChart data={paddedHistory}>
                                     <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 10}} />
                                     <Bar 
                                         dataKey="cycleLength" 
                                         fill="#E11D48" 
-                                        radius={[10, 10, 10, 10]} 
-                                        isAnimationActive={barVisible} 
+                                        radius={[10, 10, 10, 10]}
                                         animationDuration={1200}
                                     />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
+
                         <div className="bg-white/5 rounded-[2.5rem] border border-white/5 overflow-hidden">
                             <table className="w-full">
                                 <tbody className="text-xs">
