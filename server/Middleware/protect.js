@@ -1,21 +1,27 @@
-const jwt = require("jsonwebtoken");
-require("dotenv").config();
+// middleware/authMiddleware.js
+const jwt = require('jsonwebtoken');
+const User = require('../Model/User');
 
 const protect = async (req, res, next) => {
-    const token = req.headers.authorization?.split(" ")[1];
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+        try {
+            const token = req.headers.authorization.split(' ')[1]; 
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    if(!token) {
-        return res.status(400).json({message: "Unauthorized"});
+            const user = await User.findById(decoded.id).select('-password');
+
+            if (!user) {
+                return res.status(401).json({ message: 'User no longer exists' });
+            }
+
+            req.user = user;
+            next();
+        } catch (error) { 
+            res.status(401).json({ message: 'Not authorized, token failed' });
+        }
+    } else {
+        res.status(401).json({ message: 'Not authorized, no token' });
     }
+};
 
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded;
-        next();
-    } catch (error) {
-        console.log("Error Occured token : ", error);
-        return res.status(500).json({message: "Internal Server Error While Authorization"});
-    }
-}
-
-module.exports = protect;
+module.exports = {protect};

@@ -1,17 +1,10 @@
 const mongoose = require("mongoose");
 
 const cycleSchema = mongoose.Schema({
-    userId:{type: String, required: true},
-    cycleLength:{type: Number, required: true, default: 28},
-    menstrualLength:{type: Number, required: true, default: 5},
-    follicularLength:{type: Number, required: true, default: 10},
-    ovulationLength:{type: Number, required: true, default: 1},
-    lutealLength:{type: Number, required: true, default: 14},
-    regularity:{type:String, enum:["regular", "irregular"], default:"regular"},
-    unexpected:{type: Boolean, default: false, default: false},
-    recentDay: {type: Date, required: true},
-    expectedDate: {type: Date, required: true},
-    month:{type: String, required: true}
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  startDate: { type: Date, required: true },
+  endDate: { type: Date }, // Optional: for tracking flow duration
+  isPredicted: { type: Boolean, default: false } // To distinguish between user-input and estimates
 }, {timestamps: true});
 
 module.exports = mongoose.model('Cycle', cycleSchema);

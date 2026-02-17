@@ -43,7 +43,6 @@ const DailyCheckIn = () => {
               </h2>
             </div>
             <div className="text-right hidden md:block">
-              <p className="text-slate-400 text-sm font-bold uppercase tracking-widest">User Profile</p>
               <p className="text-slate-900 font-black text-lg">Sarah Jenkins</p>
             </div>
           </div>

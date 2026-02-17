@@ -1,206 +1,55 @@
 const User = require("../Model/User");
-const Address = require("../Model/Address");
 const Cycle = require("../Model/Cycle");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { differenceInDays, parseISO, addDays } = require('date-fns');
+const {calculateCycleData} = require('../Utils/CycleLogic');
+const { differenceInDays } = require('date-fns');
 require("dotenv").config()
 
-const phaseCycleLength = {
-    short: { menstrual: 4, follicular: 7, ovulation: 1, luteal: 12 },
-    average: { menstrual: 5, follicular: 10, ovulation: 1, luteal: 14 },
-    long: { menstrual: 6, follicular: 14, ovulation: 1, luteal: 16 }
-};
+const registerUser = async (req, res) => {
+  try {
+    const { name, email, password, recentDay1, recentDay2 } = req.body;
 
-const findCycle = (cycleLengthDays) => {
-    var cycleLength = phaseCycleLength.short;
-    if(cycleLengthDays >= 21 && cycleLengthDays <= 25) {
-        cycleLength = phaseCycleLength.short;
-    } else if (cycleLengthDays >= 26 && cycleLengthDays <= 30) {
-        cycleLength = phaseCycleLength.average;
-    } else if(cycleLengthDays > 31 && cycleLengthDays <= 35) {
-        cycleLength = phaseCycleLength.long;
-    } else {
-        cycleLength = "irregular";
+    if (!name || !email || !password || !recentDay1 || !recentDay2) {
+       return res.status(400).json({ status: false, message: "All fields required" });
     }
-    return (cycleLength);
-}
 
-const findLength = async (start, end, userId) => {
-    const st = parseISO(start);
-    const en = parseISO(end);
-    const cycleLengthDays = differenceInDays(en, st);
-    const totalCycleCount = await Cycle.countDocuments({userId});
-    console.log(cycleLengthDays, totalCycleCount);
-    if(totalCycleCount <= 3) {
-        return [cycleLengthDays, findCycle(cycleLengthDays)];
-    } else {
-        calculateLength(userId);
-    }
-}
+    // 2. Calculate baseline cycle length
+    // If recentDay1 is Feb 1 and recentDay2 is Jan 1, length is 31 days
+    const d1 = new Date(recentDay1);
+    const d2 = new Date(recentDay2);
+    const initialCycleLength = Math.abs(differenceInDays(d1, d2));
+    console.log('---------------------------------\n', initialCycleLength);
+    // 3. Create User
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-const calculateLength = async (userId) => {
-    const cycles = await Cycle.find({ userId });
-
-    const totalCycleLength = cycles.reduce((sum, cycle) => sum + cycles.cycleLength, 0);
-    const totalMenstrualLength = cycles.reduce((sum, cycle) => sum + cycles.menstrualLength, 0);
-    const totallutealLength = cycles.reduce((sum, cycle) => sum + cycles.lutealLength, 0);
-
-    const fixedMenstrualLength = Math.round(totalMenstrualLength / cycles.length);
-    const fixedLutealLength = Math.round(totallutealLength / cycles.length);
-    const fixedFollicularLength = Math.round((totalCycleLength / cycles.length) - (fixedLutealLength + fixedMenstrualLength));
-    const fixedOvulationLength = 1;
-
-    const c_length = findCycle(totalCycleLength);
-    c_length.menstrual = fixedFollicularLength;
-    c_length.follicular = fixedFollicularLength;
-    c_length.ovulation = fixedOvulationLength;
-    c_length.luteal = fixedLutealLength;
-
-    return [totalCycleLength, c_length];
-}
-
-const updateDate = async (userId, lastDate, cycleCount, phaseDatas) => {
-    const futureDate = addDays(lastDate, cycleCount);
-    if (new Date() > futureDate) {
-        // Insert into db new cycle data
-        const month = new Date(lastDate);
-        const monthName = date.toLocaleString("en-US", { month: "long" });
-        const expectedDate = addDays(date, cycleCount);
-        const newCycle = new Cycle({
-            userId, 
-            cycleLength: cycleCount,
-            menstrualLength: phaseDatas.menstrual,
-            follicularLength: phaseDatas.follicular,
-            ovulationLength: phaseDatas.ovulationLength,
-            lutealLength: phaseDatas.lutealLength,
-            recentDay: lastDate,
-            expectedDate,
-            month
-        });
-
-        await newCycle.save();
-        
-        if(newCycle) {
-            res.status(200).json({message: "Date Updated"});
-        }
-    }
-}
-
-const fetchUserData = async (req, res) => {
-    try {
-
-        const {userId} = req.body;
-        if(!userId) {
-            return res.status(400).json({status: false, message: "Invalid user Id"});
-        }
-
-        const gotUser = await User.findOne({_id: userId});
-        if(!gotUser) {
-            return res.status(404).json({status: false, message: "No data found on User"});
-        }
-
-        const totalCycleCount = await Cycle.countDocuments({userId: gotUser._id});
-        const lastRecord = await Cycle.findOne({ userId }).sort({ createdAt: -1 }); // Fetch latest document 
-
-        const periodData = findLength(recentDay, recentDay2, gotUser._id);
-
-        updateDate(userId, lastRecord.recentDay, periodData[0], periodData[1]);
-
-        return res.status(200).json({status: true, message: "Data fetched Successfully", userData: gotUser, periodsData: periodData, lastRecord: lastRecord});
-
-    } catch (error) {
-        console.log(`Internal server Error`);
-        return res.status(500).json({status: false, message: "Inernal serval Error"});
-    }
-}
-
-const addUnexpectedPeriod = async (req, res) => {
-    const {userId, lastDate} = req.body;
-    const date =  new Date(recentDay)
-    const expectedDate = addDays(date, cycleLength);
-    const monthName = date.toLocaleString("en-US", { month: "long" });
-    const periodData = findLength(lastDate, date, userId)
-    const newCycle = new Cycle({
-        userId,
-        cycleLength: periodData[0],
-        menstrualLength: periodData[1].menstrual,
-        follicularLength: periodData[1].follicular,
-        ovulationLength: periodData[1].ovulation,
-        lutealLength: periodData[1].luteal,
-        regularity: "irregular",
-        addUnexpected: true,
-        recentDay: lastDate,
-        expectedDate,
-        month: monthName
+    const newUser = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      avgCycleLength: initialCycleLength || 28 // Fallback to 28 if math fails
     });
 
-    await newCycle.save();
+    // 4. Save the "Logs" - Store both provided dates as real history
+    await Cycle.insertMany([ 
+      { userId: newUser._id, startDate: d2 },
+      { userId: newUser._id, startDate: d1 }
+    ]);
 
-    if(newCycle) {
-        res.status(200).json({message: "Cycle Updated Successfully"});
-    }
-}
-
-const registerUser =  async (req, res) => {
-    try{
-        const {name, email, password, recentDay1, recentDay2} = req.body;
-        console.log(name, email, password, recentDay1, recentDay2);
-        if(!name || !email || !password || !recentDay1 || !recentDay2) {
-            return res.status(400).json({status: false, message: "Please fill all the feilds"});
-        }
+    // 5. JWT and Response
+    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
     
-        const findUser = await User.findOne({email});
-        if(findUser) {
-            console.log("Email already in Use");
-            return res.status(400).json({status: false, message: "Email already registered"});
-        }
-    
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-    
-        const newUser = new User({
-            name,
-            email,
-            password: hashedPassword
-        });
-    
-        await newUser.save();
+    return res.status(201).json({ 
+      status: true, 
+      token, 
+      userData: { id: newUser._id, name: newUser.name } 
+    });
 
-        const periodData = await findLength(recentDay2, recentDay1, newUser._id);
-        console.log('Here : ', periodData);
-        const cycleLength = periodData[0];
-        const date =  new Date(recentDay1)
-        const expectedDate = addDays(date, cycleLength);
-        const monthName = date.toLocaleString("en-US", { month: "long" });
-        const newCycle = new Cycle({
-            userId: newUser._id,
-            cycleLength,
-            menstrualLength: periodData[1].menstrual,
-            follicularLength: periodData[1].follicular,
-            ovulationLength: periodData[1].ovulation,
-            lutealLength: periodData[1].luteal,
-            recentDay : recentDay1,
-            expectedDate,
-            month: monthName
-        });
-
-        await newCycle.save();
-
-        if(!newUser || !newCycle) {
-            return res.status(400).json({message: "Registration Failed"});
-        }
-
-        const toStore = {_id : newUser._id, email : newUser.email};
-        const token = jwt.sign({id: newUser._id, email: newUser.email}, process.env.JWT_SECRET, {expiresIn: '24h'});
-        return res.status(201).json({status: true, message: "Registration Success",token : token, userData: toStore});
-    
-    } catch(error) {
-        console.log(`Error registering : ${error}`);
-        return res.status(500).json({status: false, message: "Server Error"});
-    }
+  } catch (error) {
+    res.status(500).json({ status: false, message: error.message });
+  }
 };
-
 
 const userLogIn = async (req, res) => {
     try {
@@ -232,88 +81,92 @@ const userLogIn = async (req, res) => {
     }
 }
 
+const getTrackingData = async (req, res) => {
+  const userId = req.user.id; //Middleware
 
-const updateProfile = async (req, res) => {
+  const user = await User.findById(userId);
+  
+  // 2. Get the most recent period start date
+  const history = await Cycle.find({ userId }).sort({ startDate: -1 }).limit(6);
+  const lastCycle = history[0];
+
+  if (!lastCycle) return res.status(404).json({ message: "No data found" });
+
+  // 3. Calculate current status on-the-fly
+  const prediction = calculateCycleData(
+    lastCycle.startDate, 
+    user.avgCycleLength, 
+    user.avgPeriodLength
+  );
+
+  // 4. Determine current phase based on TODAY's date
+  const today = new Date();
+  let currentPhase = "Luteal"; // Default
+  
+  if (today >= prediction.phases.menstrual.start && today <= prediction.phases.menstrual.end) currentPhase = "Menstrual";
+  else if (today <= prediction.phases.follicular.end) currentPhase = "Follicular";
+  else if (today <= prediction.phases.ovulation.end) currentPhase = "Ovulation";
+
+  const fullCycleData = history.map(c => ({
+        month: c.startDate.toLocaleString("en-US", { month: "long" }).toUpperCase(),
+        startDate: c.startDate.toLocaleDateString(),
+        cycleLength: user.avgCycleLength // or calculate actual if you have endDate
+    })); 
+
+    console.log(currentPhase, differenceInDays(prediction.nextPeriodDate, today), prediction, fullCycleData);
+
+  res.json({
+    currentPhase,
+    nextPeriodIn: differenceInDays(prediction.nextPeriodDate, today),
+    prediction,
+    fullCycleData
+  });
+};
+
+const logActualPeriod = async (req, res) => {
     try {
-        const userId = req.user.id;
-        const {name, email, phone} = req.body;
-        console.log("Got")
-        const updatedUser = await User.findByIdAndUpdate(
-            userId,
-            {name, email, phone},
-            {new: true}
-        );
+        const { actualStartDate } = req.body; // e.g., "2026-03-15"
+        const userId = req.user.id; // From your Auth middleware
 
-        if(!updatedUser) {
-            return res.status(404).json({messge: "User Not found"});
-        }
-        res.status(201).json({message: "Profile updated", user: updatedUser});
-    } catch(error) {
-        console.log("Server Error");
-        return res.status(500).json({message: "Internal Server Error"});
-    }
-}
+        // 1. Get the user and their most recent log
+        const user = await User.findById(userId);
+        const lastCycle = await Cycle.findOne({ userId }).sort({ startDate: -1 });
 
-const addAddress = async (req, res) => {
-    try {
-        const userId = req.user.id;
-        const {address} = req.body;
-        const {state, pin, landmark} = address || {};
-
-        if(!state || !pin || !landmark) {
-            return res.status(400).json({message: "Please fill the feilds"})
+        if (!lastCycle) {
+            return res.status(404).json({ message: "No previous cycle found to compare." });
         }
 
-        const newAddress = new Address({
+        // 2. Calculate the NEW cycle length (Days between last period and today)
+        const newMeasuredLength = differenceInDays(new Date(actualStartDate), new Date(lastCycle.startDate));
+
+        // 3. Update the Rolling Average
+        // Formula: (Old Average + New Length) / 2 
+        // Note: You could make this more complex by weighted averaging 3-6 months
+        const updatedAvg = Math.round((user.avgCycleLength + newMeasuredLength) / 2);
+
+        // 4. Save the updated average to the User model
+        user.avgCycleLength = updatedAvg;
+        await user.save();
+
+        // 5. Create the new Cycle log
+        const newLog = new Cycle({
             userId,
-            address: {
-                state,
-                pin,
-                landmark
-            }
+            startDate: actualStartDate,
+            isPredicted: false // This is a real data point!
+        });
+        await newLog.save();
+
+        return res.status(200).json({
+            status: true,
+            message: "Cycle updated successfully!",
+            newAverage: updatedAvg,
+            nextPeriodPredicted: updatedAvg // Send this back so UI can update
         });
 
-        await newAddress.save();
-        return res.status(201).json({message: "Address Successfull Added"});
-
-    } catch(error) {
-        console.log("Error");
-        return res.status(400).json({message: "Internal Server Error"});
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ status: false, message: "Server error updating cycle." });
     }
-}
+};
 
-const updateAddress = async (req, res) => {
-    try {
-
-        const userId = req.user.id;
-        const {addressId, state, pin, landmark} = req.body;
-
-        if(!addressId || !state || !pin || !landmark) {
-            return res.status(400).json({message: "Please Fill all the feilds"});
-        }
-
-        const useAddress = {
-            address: {
-                state: state,
-                pin: pin,
-                landmark: landmark
-            }
-        }
-
-        const updateAddress = await Address.findByIdAndUpdate(
-            addressId,
-            useAddress,    
-            {new: true}  
-        )
-
-        if(updateAddress) {
-            return res.status(201).json({message: "Updated Successfully"});
-        }
-
-    } catch(error) {
-        console.log('Error Occured');
-        return res.status(400).json({message: "Internal Server Error"});
-    }
-}
-
-module.exports = {registerUser, userLogIn, updateProfile, addAddress, updateAddress, fetchUserData};
+module.exports = {registerUser, userLogIn, getTrackingData, logActualPeriod};

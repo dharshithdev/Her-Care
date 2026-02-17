@@ -55,11 +55,14 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFCFD] flex items-center justify-center p-4 lg:p-8 font-sans">
+    /* Added pt-32 for header clearance and relative/overflow-x-hidden for background blurs */
+    <div className="min-h-screen bg-[#FDFCFD] flex items-center justify-center p-6 lg:p-12 pt-32 font-sans relative overflow-x-hidden">
+      
       <Header />
-      {/* Background Decorative Blurs */}
-      <div className="fixed top-0 left-0 w-96 h-96 bg-rose-100 rounded-full blur-[120px] opacity-60 -translate-x-1/2 -translate-y-1/2" />
-      <div className="fixed bottom-0 right-0 w-96 h-96 bg-indigo-100 rounded-full blur-[120px] opacity-60 translate-x-1/2 translate-y-1/2" />
+
+      {/* Background Decorative Blurs - pointer-events-none added so they don't block clicks */}
+      <div className="fixed top-0 left-0 w-96 h-96 bg-rose-100 rounded-full blur-[120px] opacity-60 -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+      <div className="fixed bottom-0 right-0 w-96 h-96 bg-indigo-100 rounded-full blur-[120px] opacity-60 translate-x-1/2 translate-y-1/2 pointer-events-none" />
 
       <div className="max-w-6xl w-full bg-white/80 backdrop-blur-2xl rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-white flex flex-col md:flex-row overflow-hidden relative z-10">
         
@@ -147,7 +150,7 @@ const Login = () => {
                   onChange={handleChange}
                   className="w-4 h-4 rounded border-slate-200 text-rose-500 focus:ring-rose-500"
                 />
-                <label htmlFor="rememberMe" className="text-sm text-slate-500 font-medium">Keep me logged in</label>
+                <label htmlFor="rememberMe" className="text-sm text-slate-500 font-medium cursor-pointer">Keep me logged in</label>
               </div>
 
               <button
@@ -166,10 +169,10 @@ const Login = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <button className="flex items-center justify-center gap-2 py-3 border-2 border-slate-50 rounded-2xl hover:bg-slate-50 hover:border-slate-100 transition-all font-bold text-sm text-slate-600">
+                <button className="flex items-center justify-center gap-2 py-3 border-2 border-slate-50 rounded-2xl hover:bg-slate-50 hover:border-slate-100 transition-all font-bold text-sm text-slate-600 transition-colors">
                   <img src={googleLogo} alt="G" className="w-4 h-4" /> Google
                 </button>
-                <button className="flex items-center justify-center gap-2 py-3 border-2 border-slate-50 rounded-2xl hover:bg-slate-50 hover:border-slate-100 transition-all font-bold text-sm text-slate-600">
+                <button className="flex items-center justify-center gap-2 py-3 border-2 border-slate-50 rounded-2xl hover:bg-slate-50 hover:border-slate-100 transition-all font-bold text-sm text-slate-600 transition-colors">
                   <img src={appleLogo} alt="A" className="w-4 h-4" /> Apple
                 </button>
               </div>

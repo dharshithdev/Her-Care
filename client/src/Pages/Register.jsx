@@ -5,8 +5,7 @@ import registerImage from '../Assets/registerImage.png';
 import googleLogo from '../Assets/google.png';
 import appleLogo from '../Assets/apple.png';
 import axios from 'axios';
-import Header from '../Components/Header';
-
+import Header from '../Components/Header'
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -56,8 +55,8 @@ const Register = () => {
             const result = await axios.post("http://localhost:5000/api/users/register", formData);
             if (result.data.status) {
                 setFormMessage({ type: 'success', text: "Welcome to Her-Care!" });
-                localStorage.setItem('userData', JSON.stringify(result.data.userData));
-                setTimeout(() => navigate("/track"), 1500);
+                localStorage.setItem('token', result.data.token); 
+                setTimeout(() => navigate("/track"), 1500); 
             }
         } catch (error) {
             setFormMessage({ type: 'error', text: error.response?.data?.message || 'Registration failed.' });
@@ -67,11 +66,14 @@ const Register = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#FDFCFD] flex items-center justify-center p-4 lg:p-8 font-sans">
-            {/* Background Decorative Blurs */}
+        /* pt-32 adds the necessary space for the floating Header */
+        <div className="min-h-screen bg-[#FDFCFD] flex items-center justify-center p-6 lg:p-12 pt-32 font-sans relative overflow-x-hidden">
+            
             <Header />
-            <div className="fixed top-0 right-0 w-96 h-96 bg-rose-100 rounded-full blur-[120px] opacity-60 translate-x-1/2 -translate-y-1/2" />
-            <div className="fixed bottom-0 left-0 w-96 h-96 bg-indigo-100 rounded-full blur-[120px] opacity-60 -translate-x-1/2 translate-y-1/2" />
+
+            {/* Background Decorative Blurs */}
+            <div className="fixed top-0 right-0 w-96 h-96 bg-rose-100 rounded-full blur-[120px] opacity-60 translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+            <div className="fixed bottom-0 left-0 w-96 h-96 bg-indigo-100 rounded-full blur-[120px] opacity-60 -translate-x-1/2 translate-y-1/2 pointer-events-none" />
 
             <div className="max-w-6xl w-full bg-white/80 backdrop-blur-2xl rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-white flex flex-col md:flex-row overflow-hidden relative z-10">
                 
@@ -150,7 +152,7 @@ const Register = () => {
                             <div className="flex items-center gap-3 ml-1 py-2">
                                 <input name="agreeToTerms" type="checkbox" id="terms" checked={formData.agreeToTerms} onChange={handleChange}
                                     className="w-5 h-5 rounded-lg border-slate-200 text-rose-500 focus:ring-rose-500" />
-                                <label htmlFor="terms" className="text-xs text-slate-500 font-medium">
+                                <label htmlFor="terms" className="text-xs text-slate-500 font-medium cursor-pointer">
                                     I agree to the <Link to="/terms" className="text-rose-500 font-bold hover:underline">Terms</Link> & <Link to="/policy" className="text-rose-500 font-bold hover:underline">Policy</Link>
                                 </label>
                             </div>
@@ -162,10 +164,10 @@ const Register = () => {
                         </form>
 
                         <div className="mt-8 flex flex-col sm:flex-row gap-3">
-                            <button className="flex-1 flex items-center justify-center gap-2 py-3 border-2 border-slate-50 rounded-2xl hover:bg-slate-50 font-bold text-xs text-slate-600">
+                            <button className="flex-1 flex items-center justify-center gap-2 py-3 border-2 border-slate-50 rounded-2xl hover:bg-slate-50 font-bold text-xs text-slate-600 transition-colors">
                                 <img src={googleLogo} alt="G" className="w-4 h-4" /> Google
                             </button>
-                            <button className="flex-1 flex items-center justify-center gap-2 py-3 border-2 border-slate-50 rounded-2xl hover:bg-slate-50 font-bold text-xs text-slate-600">
+                            <button className="flex-1 flex items-center justify-center gap-2 py-3 border-2 border-slate-50 rounded-2xl hover:bg-slate-50 font-bold text-xs text-slate-600 transition-colors">
                                 <img src={appleLogo} alt="A" className="w-4 h-4" /> Apple
                             </button>
                         </div>
@@ -181,7 +183,7 @@ const Register = () => {
                     <img src={registerImage} alt="Wellness" className="w-full max-h-[450px] object-contain relative z-10" />
                     
                     <div className="absolute bottom-12 left-12 right-12">
-                        <div className="bg-white/40 backdrop-blur-md p-6 rounded-[2rem] border border-white/50">
+                        <div className="bg-white/40 backdrop-blur-md p-6 rounded-[2rem] border border-white/50 shadow-sm">
                             <p className="text-indigo-900/60 font-black text-[10px] uppercase tracking-widest mb-2">The Mission</p>
                             <h3 className="text-lg font-bold text-indigo-900 leading-tight italic">"Your health is your greatest wealth. Let’s track it with grace."</h3>
                         </div>

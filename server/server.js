@@ -10,20 +10,13 @@ const app = express();
 app.use(cors());
 app.use(express.json())
 
-app.use("/admin/categoryImages", express.static(path.join(__dirname, "admin/categoryImages")));
-app.use("/admin/productImages", express.static(path.join(__dirname, "admin/productImages")));
+const userRoutes = require('./routes/userRoutes');
+const cycleRoutes = require('./routes/trackRoutes');
 
-const userRoutes = require('./Routes/userRoutes');
+
 app.use('/api/users', userRoutes);
- 
-const sanOrderRoutes = require("./Routes/sanRoutes"); 
-app.use('/api/sanitory', sanOrderRoutes);
+app.use('/api/track', cycleRoutes);
 
-const craveOrderRoutes = require("./Routes/craveRoutes");
-app.use("/api/crave", craveOrderRoutes);
-
-const appoinmentRoutes = require("./Routes/appoinmentRoutes");
-app.use('/api/appoinments', appoinmentRoutes);
 
 mongoose.connect(process.env.MONGO_URI).then(() => {
     console.log(`Connected to MongoDB`);
