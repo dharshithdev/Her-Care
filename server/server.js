@@ -12,10 +12,12 @@ app.use(express.json())
 
 const userRoutes = require('./routes/userRoutes');
 const cycleRoutes = require('./routes/trackRoutes');
+const appointmentRoutes = require('./routes/appointmentRoutes');
 
 
 app.use('/api/users', userRoutes);
 app.use('/api/track', cycleRoutes);
+app.use('/api/appointments', appointmentRoutes);
 
 
 mongoose.connect(process.env.MONGO_URI).then(() => {

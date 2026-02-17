@@ -19,7 +19,6 @@ const registerUser = async (req, res) => {
     const d1 = new Date(recentDay1);
     const d2 = new Date(recentDay2);
     const initialCycleLength = Math.abs(differenceInDays(d1, d2));
-    console.log('---------------------------------\n', initialCycleLength);
     // 3. Create User
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -79,7 +78,7 @@ const userLogIn = async (req, res) => {
         console.log("Error : ", err);
         return res.status(500).json({status: false, message: "Interbal Server Error"});
     }
-}
+} 
 
 const getTrackingData = async (req, res) => {
   const userId = req.user.id; //Middleware
@@ -90,7 +89,7 @@ const getTrackingData = async (req, res) => {
   const history = await Cycle.find({ userId }).sort({ startDate: -1 }).limit(6);
   const lastCycle = history[0];
 
-  if (!lastCycle) return res.status(404).json({ message: "No data found" });
+  if (!lastCycle) return res.status(404).json({ message: "No data found" }); 
 
   // 3. Calculate current status on-the-fly
   const prediction = calculateCycleData(
@@ -112,8 +111,6 @@ const getTrackingData = async (req, res) => {
         startDate: c.startDate.toLocaleDateString(),
         cycleLength: user.avgCycleLength // or calculate actual if you have endDate
     })); 
-
-    console.log(currentPhase, differenceInDays(prediction.nextPeriodDate, today), prediction, fullCycleData);
 
   res.json({
     currentPhase,

@@ -7,6 +7,7 @@ import Track from './Pages/Track';
 import Explore from './Pages/Explore';
 import AboutUs from './Pages/About';
 import DailyCheckIn from './Pages/Daily';
+import DoctorsPage from './Pages/Doctors';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/explore" element={<Explore />} />
         <Route path="/aboutus" element={<AboutUs   />} />
         <Route path="/daily" element={<DailyCheckIn   />} />
+        <Route path="/appointments" element={<DoctorsPage />} />
 
       </Routes>
   );

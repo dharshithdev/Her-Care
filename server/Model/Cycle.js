@@ -6,5 +6,5 @@ const cycleSchema = mongoose.Schema({
   endDate: { type: Date }, // Optional: for tracking flow duration
   isPredicted: { type: Boolean, default: false } // To distinguish between user-input and estimates
 }, {timestamps: true});
-
+ 
 module.exports = mongoose.model('Cycle', cycleSchema);

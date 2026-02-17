@@ -119,12 +119,31 @@ const TrackPage = () => {
     const paddedHistory = getPaddedHistory();
     const flowChartData = getFlowData();
 
-    const phasesUI = [
-        { name: "Menstrual", value: currentPhase === "Menstrual" ? differenceInDays(today, new Date(prediction.phases.menstrual.start)) + 1 : 0, total: 5 },
-        { name: "Follicular", value: currentPhase === "Follicular" ? differenceInDays(today, new Date(prediction.phases.follicular.start)) + 1 : 0, total: 10 },
-        { name: "Ovulation", value: currentPhase === "Ovulation" ? 1 : 0, total: 1 },
-        { name: "Luteal", value: currentPhase === "Luteal" ? differenceInDays(today, new Date(prediction.phases.luteal.start)) + 1 : 0, total: 14 },
-    ];
+const phaseOrder = ["Menstrual", "Follicular", "Ovulation", "Luteal"];
+const currentPhaseIndex = phaseOrder.indexOf(currentPhase);
+
+const phasesUI = [
+    { 
+        name: "Menstrual", 
+        total: 5,
+        value: currentPhaseIndex > 0 ? 5 : (currentPhase === "Menstrual" ? differenceInDays(today, new Date(prediction.phases.menstrual.start)) + 1 : 0)
+    },
+    { 
+        name: "Follicular", 
+        total: 10,
+        value: currentPhaseIndex > 1 ? 10 : (currentPhase === "Follicular" ? differenceInDays(today, new Date(prediction.phases.follicular.start)) + 1 : 0)
+    },
+    { 
+        name: "Ovulation", 
+        total: 1,
+        value: currentPhaseIndex > 2 ? 1 : (currentPhase === "Ovulation" ? 1 : 0)
+    },
+    { 
+        name: "Luteal", 
+        total: 14,
+        value: currentPhase === "Luteal" ? differenceInDays(today, new Date(prediction.phases.luteal.start)) + 1 : 0
+    },
+];
 
     const phaseColors = { Menstrual: "#FDA4AF", Follicular: "#FDA4AF", Ovulation: "#FDA4AF", Luteal: "#FDA4AF" };
     phaseColors[currentPhase] = "#E11D48";

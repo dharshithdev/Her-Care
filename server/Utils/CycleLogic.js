@@ -9,10 +9,10 @@ const calculateCycleData = (lastPeriodDate, avgCycle = 28, avgPeriod = 5) => {
   // 2. Predict Ovulation (Standard medical calculation: 14 days before next period)
   const ovulationDate = subDays(nextPeriodDate, 14);
   
-  // 3. Define the Phase Windows
+  // 3. Define the Phase Windows 
   return {
     phases: {
-      menstrual: { 
+      menstrual: {
         start: start, 
         end: addDays(start, avgPeriod - 1) 
       },
