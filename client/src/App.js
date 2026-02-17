@@ -8,6 +8,7 @@ import Explore from './Pages/Explore';
 import AboutUs from './Pages/About';
 import DailyCheckIn from './Pages/Daily';
 import DoctorsPage from './Pages/Doctors';
+import BookAppointment from './Pages/BookAppointment';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/aboutus" element={<AboutUs   />} />
         <Route path="/daily" element={<DailyCheckIn   />} />
         <Route path="/appointments" element={<DoctorsPage />} />
+        <Route path="/bookappointment/:id" element={<BookAppointment />} />
 
       </Routes>
   );
