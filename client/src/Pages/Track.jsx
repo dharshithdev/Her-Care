@@ -6,22 +6,30 @@ import Footer from "../Components/Footer";
 import axios from 'axios';
 import { format, addDays, isSameDay, differenceInDays, subMonths } from 'date-fns';
 
-// Helper for scroll-triggered animations — ref goes on the chart wrapper div
+// IntersectionObserver watches window scroll — works because overflow-y-auto is removed from outer div
 const useInView = () => {
     const [key, setKey] = useState(0);
     const ref = useRef(null);
+    const triggered = useRef(false); // prevents re-triggering while already in view
 
     useEffect(() => {
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting) {
-                    setKey(prev => prev + 1); // force remount every time it scrolls into view
-                }
-            },
-            { threshold: 0.3 }
-        );
-        if (ref.current) observer.observe(ref.current);
-        return () => observer.disconnect();
+        const handleScroll = () => {
+            if (!ref.current) return;
+            const rect = ref.current.getBoundingClientRect();
+            const inView = rect.top < window.innerHeight && rect.bottom > 0;
+
+            if (inView && !triggered.current) {
+                triggered.current = true;
+                setKey(prev => prev + 1);
+            }
+
+            if (!inView) {
+                triggered.current = false; // reset when out of view so it fires again on next scroll in
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
     return [ref, key];
@@ -83,10 +91,10 @@ const TrackPage = () => {
 
     const getFlowData = () => {
         const data = [];
-        const cycleDays = 7; 
+        const cycleDays = 7;
         const multiplier = selectedFlow === "heavy" ? 1.5 : 1;
         for (let i = 0; i < cycleDays; i++) {
-            let flow = 0.2; 
+            let flow = 0.2;
             if (i >= 0 && i < 5) {
                 const baseIntensities = [1.5, 3, 3, 2, 1];
                 flow = baseIntensities[i] * multiplier;
@@ -128,10 +136,11 @@ const TrackPage = () => {
     })();
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] text-slate-800 overflow-y-auto">
+        // ✅ overflow-y-auto removed — window handles scrolling now
+        <div className="min-h-screen bg-[#F8FAFC] text-slate-800">
             <MainHeader />
             <div className="max-w-7xl mx-auto p-4 lg:p-8 pt-24 lg:pt-32 space-y-12">
-                
+
                 {/* SECTION 1: CYCLE TRACKER & LINE CHART */}
                 <section className="bg-white p-6 lg:p-10 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-rose-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-50" />
@@ -150,7 +159,7 @@ const TrackPage = () => {
                             const isToday = isSameDay(date, today);
                             const isPredictedPeriod = date >= new Date(prediction.phases.menstrual.start) && date <= new Date(prediction.phases.menstrual.end);
                             return (
-                                <div key={index} 
+                                <div key={index}
                                     className={`flex flex-col items-center justify-center min-w-[110px] h-[130px] rounded-[2.2rem] transition-all duration-500 snap-center relative border-4 ${isToday ? "border-rose-500 bg-white scale-110 shadow-2xl shadow-rose-200 z-30" : "border-transparent z-10"}`}
                                     style={{ backgroundColor: isToday ? '#FFF' : (isPredictedPeriod ? '#FB7185' : '#F8FAFC'), color: isToday || isPredictedPeriod ? '#E11D48' : '#64748B' }}>
                                     <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${isToday ? 'text-rose-500' : 'opacity-60'}`}>{format(date, 'eee')}</span>
@@ -172,17 +181,17 @@ const TrackPage = () => {
                         </button>
                     </div>
 
-                    {/* ref on the chart wrapper div, NOT the section */}
+                    {/* ref on the chart wrapper div */}
                     <div ref={lineChartRef} className="w-full h-[320px] mt-12 bg-slate-50/80 backdrop-blur-sm rounded-[2rem] p-6 border border-white">
                         <ResponsiveContainer width="100%" height="100%" key={`line-${lineKey}`}>
                             <LineChart data={flowChartData}>
-                                <Line 
-                                    type="monotone" 
-                                    dataKey="value" 
-                                    stroke="#E11D48" 
-                                    strokeWidth={6} 
+                                <Line
+                                    type="monotone"
+                                    dataKey="value"
+                                    stroke="#E11D48"
+                                    strokeWidth={6}
                                     dot={false}
-                                    animationDuration={1200} 
+                                    animationDuration={1200}
                                 />
                                 <Tooltip />
                             </LineChart>
@@ -204,13 +213,13 @@ const TrackPage = () => {
                                 <div className="relative w-full h-[200px]">
                                     <ResponsiveContainer width="100%" height="100%" key={`pie-${index}-${pieKey}`}>
                                         <PieChart>
-                                            <Pie 
-                                                data={[phase, { name: "Rem", value: phase.total - phase.value }]} 
-                                                dataKey="value" 
-                                                innerRadius={65} 
-                                                outerRadius={85} 
-                                                startAngle={90} 
-                                                endAngle={-270} 
+                                            <Pie
+                                                data={[phase, { name: "Rem", value: phase.total - phase.value }]}
+                                                dataKey="value"
+                                                innerRadius={65}
+                                                outerRadius={85}
+                                                startAngle={90}
+                                                endAngle={-270}
                                                 stroke="none"
                                                 animationDuration={1000}
                                             >
@@ -258,10 +267,10 @@ const TrackPage = () => {
                         <div ref={barChartRef} className="lg:col-span-2 h-[450px] bg-white/5 rounded-[2.5rem] p-8">
                             <ResponsiveContainer width="100%" height="100%" key={`bar-${barKey}`}>
                                 <BarChart data={paddedHistory}>
-                                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 10}} />
-                                    <Bar 
-                                        dataKey="cycleLength" 
-                                        fill="#E11D48" 
+                                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 10 }} />
+                                    <Bar
+                                        dataKey="cycleLength"
+                                        fill="#E11D48"
                                         radius={[10, 10, 10, 10]}
                                         animationDuration={1200}
                                     />
