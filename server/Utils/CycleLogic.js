@@ -14,7 +14,7 @@ const calculateCycleData = (lastPeriodDate, avgCycle = 28, avgPeriod = 5) => {
     phases: {
       menstrual: {
         start: start, 
-        end: addDays(start, avgPeriod - 1) 
+        end: addDays(start, avgPeriod - 1)
       },
       follicular: { 
         start: addDays(start, avgPeriod), 
@@ -27,7 +27,7 @@ const calculateCycleData = (lastPeriodDate, avgCycle = 28, avgPeriod = 5) => {
       luteal: { 
         start: addDays(ovulationDate, 1), 
         end: subDays(nextPeriodDate, 1) 
-      }
+      } 
     },
     nextPeriodDate,
     // Fertile window: 5 days before ovulation + ovulation day

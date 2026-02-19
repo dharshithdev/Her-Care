@@ -6,11 +6,10 @@ import Footer from "../Components/Footer";
 import axios from 'axios';
 import { format, addDays, isSameDay, differenceInDays, subMonths } from 'date-fns';
 
-// IntersectionObserver watches window scroll — works because overflow-y-auto is removed from outer div
 const useInView = () => {
     const [key, setKey] = useState(0);
     const ref = useRef(null);
-    const triggered = useRef(false); // prevents re-triggering while already in view
+    const triggered = useRef(false);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -24,7 +23,7 @@ const useInView = () => {
             }
 
             if (!inView) {
-                triggered.current = false; // reset when out of view so it fires again on next scroll in
+                triggered.current = false;
             }
         };
 
@@ -72,9 +71,9 @@ const TrackPage = () => {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             fetchTrackingData();
-            alert(`Logged as ${flowType} flow!`);
+            // Alerts removed
         } catch (err) {
-            alert("Error updating cycle");
+            console.error("Error updating cycle", err);
         }
     };
 
@@ -119,31 +118,15 @@ const TrackPage = () => {
     const paddedHistory = getPaddedHistory();
     const flowChartData = getFlowData();
 
-const phaseOrder = ["Menstrual", "Follicular", "Ovulation", "Luteal"];
-const currentPhaseIndex = phaseOrder.indexOf(currentPhase);
+    const phaseOrder = ["Menstrual", "Follicular", "Ovulation", "Luteal"];
+    const currentPhaseIndex = phaseOrder.indexOf(currentPhase);
 
-const phasesUI = [
-    { 
-        name: "Menstrual", 
-        total: 5,
-        value: currentPhaseIndex > 0 ? 5 : (currentPhase === "Menstrual" ? differenceInDays(today, new Date(prediction.phases.menstrual.start)) + 1 : 0)
-    },
-    { 
-        name: "Follicular", 
-        total: 10,
-        value: currentPhaseIndex > 1 ? 10 : (currentPhase === "Follicular" ? differenceInDays(today, new Date(prediction.phases.follicular.start)) + 1 : 0)
-    },
-    { 
-        name: "Ovulation", 
-        total: 1,
-        value: currentPhaseIndex > 2 ? 1 : (currentPhase === "Ovulation" ? 1 : 0)
-    },
-    { 
-        name: "Luteal", 
-        total: 14,
-        value: currentPhase === "Luteal" ? differenceInDays(today, new Date(prediction.phases.luteal.start)) + 1 : 0
-    },
-];
+    const phasesUI = [
+        { name: "Menstrual", total: 5, value: currentPhaseIndex > 0 ? 5 : (currentPhase === "Menstrual" ? differenceInDays(today, new Date(prediction.phases.menstrual.start)) + 1 : 0) },
+        { name: "Follicular", total: 10, value: currentPhaseIndex > 1 ? 10 : (currentPhase === "Follicular" ? differenceInDays(today, new Date(prediction.phases.follicular.start)) + 1 : 0) },
+        { name: "Ovulation", total: 1, value: currentPhaseIndex > 2 ? 1 : (currentPhase === "Ovulation" ? 1 : 0) },
+        { name: "Luteal", total: 14, value: currentPhase === "Luteal" ? differenceInDays(today, new Date(prediction.phases.luteal.start)) + 1 : 0 },
+    ];
 
     const phaseColors = { Menstrual: "#FDA4AF", Follicular: "#FDA4AF", Ovulation: "#FDA4AF", Luteal: "#FDA4AF" };
     phaseColors[currentPhase] = "#E11D48";
@@ -155,7 +138,6 @@ const phasesUI = [
     })();
 
     return (
-        // ✅ overflow-y-auto removed — window handles scrolling now
         <div className="min-h-screen bg-[#F8FAFC] text-slate-800">
             <MainHeader />
             <div className="max-w-7xl mx-auto p-4 lg:p-8 pt-24 lg:pt-32 space-y-12">
@@ -167,28 +149,28 @@ const phasesUI = [
                         <div className="flex items-center gap-4">
                             <div className="p-4 bg-rose-50 text-rose-500 rounded-2xl shadow-inner"><FiCalendar size={28} /></div>
                             <div>
-                                <h2 className="text-3xl font-black tracking-tight text-slate-900">Cycle Overview</h2>
+                                <h2 className="text-2xl lg:text-3xl font-black tracking-tight text-slate-900">Cycle Overview</h2>
                                 <p className="text-slate-400 font-medium">Phase: {currentPhase}</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="flex overflow-x-auto space-x-5 py-10 px-4 no-scrollbar snap-x relative z-10" ref={scrollRef}>
+                    <div className="flex overflow-x-auto space-x-5 py-6 lg:py-10 px-4 no-scrollbar snap-x relative z-10" ref={scrollRef}>
                         {scrollerDates.map((date, index) => {
                             const isToday = isSameDay(date, today);
                             const isPredictedPeriod = date >= new Date(prediction.phases.menstrual.start) && date <= new Date(prediction.phases.menstrual.end);
                             return (
                                 <div key={index}
-                                    className={`flex flex-col items-center justify-center min-w-[110px] h-[130px] rounded-[2.2rem] transition-all duration-500 snap-center relative border-4 ${isToday ? "border-rose-500 bg-white scale-110 shadow-2xl shadow-rose-200 z-30" : "border-transparent z-10"}`}
+                                    className={`flex flex-col items-center justify-center min-w-[100px] lg:min-w-[110px] h-[110px] lg:h-[130px] rounded-[2.2rem] transition-all duration-500 snap-center relative border-4 ${isToday ? "border-rose-500 bg-white scale-110 shadow-2xl shadow-rose-200 z-30" : "border-transparent z-10"}`}
                                     style={{ backgroundColor: isToday ? '#FFF' : (isPredictedPeriod ? '#FB7185' : '#F8FAFC'), color: isToday || isPredictedPeriod ? '#E11D48' : '#64748B' }}>
                                     <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${isToday ? 'text-rose-500' : 'opacity-60'}`}>{format(date, 'eee')}</span>
-                                    <span className="text-4xl font-black mt-1 leading-none">{date.getDate()}</span>
+                                    <span className="text-3xl lg:text-4xl font-black mt-1 leading-none">{date.getDate()}</span>
                                 </div>
                             );
                         })}
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4 relative z-10">
                         <button onClick={() => handlePeriodLog("regular")} className="py-5 px-6 rounded-2xl bg-rose-500 text-white font-black hover:bg-rose-600 transition-all text-xs tracking-wider active:scale-95">
                             I GOT MY PERIODS TODAY
                         </button>
@@ -200,43 +182,34 @@ const phasesUI = [
                         </button>
                     </div>
 
-                    {/* ref on the chart wrapper div */}
-                    <div ref={lineChartRef} className="w-full h-[320px] mt-12 bg-slate-50/80 backdrop-blur-sm rounded-[2rem] p-6 border border-white">
+                    <div ref={lineChartRef} className="w-full h-[250px] lg:h-[320px] mt-8 lg:mt-12 bg-slate-50/80 backdrop-blur-sm rounded-[2rem] p-6 border border-white">
                         <ResponsiveContainer width="100%" height="100%" key={`line-${lineKey}`}>
                             <LineChart data={flowChartData}>
-                                <Line
-                                    type="monotone"
-                                    dataKey="value"
-                                    stroke="#E11D48"
-                                    strokeWidth={6}
-                                    dot={false}
-                                    animationDuration={1200}
-                                />
+                                <Line type="monotone" dataKey="value" stroke="#E11D48" strokeWidth={6} dot={false} animationDuration={1200} />
                                 <Tooltip />
                             </LineChart>
                         </ResponsiveContainer>
                     </div>
                 </section>
 
-                {/* SECTION 2: PHASE ANALYTICS (PIE CHARTS) */}
-                <section className="bg-white p-8 lg:p-12 rounded-[2.5rem] shadow-sm border border-slate-100">
-                    <div className="flex items-center gap-4 mb-12">
+                {/* SECTION 2: PHASE ANALYTICS (Optimized for Mobile view, laptop remains identical) */}
+                <section className="bg-white p-6 lg:p-12 rounded-[2.5rem] shadow-sm border border-slate-100">
+                    <div className="flex items-center gap-4 mb-8 lg:mb-12">
                         <div className="p-4 bg-indigo-50 text-indigo-500 rounded-2xl"><FiActivity size={28} /></div>
-                        <h2 className="text-3xl font-black tracking-tight text-slate-900">Phase Analytics</h2>
+                        <h2 className="text-2xl lg:text-3xl font-black tracking-tight text-slate-900">Phase Analytics</h2>
                     </div>
 
-                    {/* ref on the pie grid wrapper */}
-                    <div ref={pieChartRef} className="grid grid-cols-2 lg:grid-cols-4 gap-10">
+                    <div ref={pieChartRef} className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-10">
                         {phasesUI.map((phase, index) => (
                             <div key={index} className="flex flex-col items-center group relative">
-                                <div className="relative w-full h-[200px]">
+                                <div className="relative w-full h-[150px] lg:h-[200px]">
                                     <ResponsiveContainer width="100%" height="100%" key={`pie-${index}-${pieKey}`}>
                                         <PieChart>
                                             <Pie
                                                 data={[phase, { name: "Rem", value: phase.total - phase.value }]}
                                                 dataKey="value"
-                                                innerRadius={65}
-                                                outerRadius={85}
+                                                innerRadius="70%"
+                                                outerRadius="90%"
                                                 startAngle={90}
                                                 endAngle={-270}
                                                 stroke="none"
@@ -248,63 +221,55 @@ const phasesUI = [
                                         </PieChart>
                                     </ResponsiveContainer>
                                     <div className="absolute inset-0 flex items-center justify-center flex-col">
-                                        <span className="text-3xl font-black text-slate-800">{phase.value || 0}</span>
-                                        <span className="text-[10px] uppercase text-slate-400 font-black">/ {phase.total} Days</span>
+                                        <span className="text-2xl lg:text-3xl font-black text-slate-800">{phase.value || 0}</span>
+                                        <span className="text-[9px] lg:text-[10px] uppercase text-slate-400 font-black">/ {phase.total} Days</span>
                                     </div>
                                 </div>
-                                <p className="mt-4 font-black text-slate-500 uppercase tracking-widest text-xs">{phase.name}</p>
+                                <p className="mt-2 lg:mt-4 font-black text-slate-500 uppercase tracking-widest text-[10px] lg:text-xs">{phase.name}</p>
                             </div>
                         ))}
                     </div>
 
-                    <div className="mt-16 flex flex-col xl:flex-row items-stretch gap-8">
-                        <div className="bg-gradient-to-br from-rose-500 to-rose-600 text-white p-8 rounded-[2rem] shadow-xl xl:w-1/3 flex flex-col justify-center items-center">
-                            <span className="text-xs font-bold uppercase tracking-[0.3em] opacity-80 mb-2">Next Milestone</span>
-                            <p className="text-2xl font-black">Period in {nextPeriodIn} Days</p>
+                    <div className="mt-8 lg:mt-16 flex flex-col xl:flex-row items-stretch gap-6 lg:gap-8">
+                        <div className="bg-gradient-to-br from-rose-500 to-rose-600 text-white p-6 lg:p-8 rounded-[2rem] shadow-xl xl:w-1/3 flex flex-col justify-center items-center">
+                            <span className="text-[10px] lg:text-xs font-bold uppercase tracking-[0.3em] opacity-80 mb-2">Next Milestone</span>
+                            <p className="text-xl lg:text-2xl font-black">Period in {nextPeriodIn} Days</p> 
                         </div>
-                        <div className="flex-1 bg-slate-50 rounded-[2rem] p-4 border border-slate-100">
-                            <table className="w-full">
-                                <tbody className="text-sm">
-                                    <tr><td className="px-6 py-5 font-bold text-slate-400 uppercase">Current Phase</td><td className="px-6 py-5 font-black text-rose-600 text-right">{currentPhase}</td></tr>
-                                    <tr className="border-y border-white"><td className="px-6 py-5 font-bold text-slate-400 uppercase">Fertility</td><td className="px-6 py-5 font-black text-slate-700 text-right">{currentPhase === "Ovulation" ? "High" : "Low"}</td></tr>
-                                    <tr className="border-y border-white"><td className="px-6 py-5 font-bold text-slate-400 uppercase">Fertile window</td><td className="px-6 py-5 font-black text-slate-700 text-right">{format(new Date(prediction.fertileWindow.start), 'MMM d')} - {format(new Date(prediction.fertileWindow.end), 'MMM d')} [6 Days]</td></tr>
+                        <div className="flex-1 bg-slate-50 rounded-[2rem] p-4 border border-slate-100 overflow-x-auto">
+                            <table className="w-full min-w-[300px] lg:min-w-0">
+                                <tbody className="text-xs lg:text-sm">
+                                    <tr><td className="px-4 lg:px-6 py-4 lg:py-5 font-bold text-slate-400 uppercase">Current Phase</td><td className="px-4 lg:px-6 py-4 lg:py-5 font-black text-rose-600 text-right">{currentPhase}</td></tr>
+                                    <tr className="border-y border-white"><td className="px-4 lg:px-6 py-4 lg:py-5 font-bold text-slate-400 uppercase">Fertility</td><td className="px-4 lg:px-6 py-4 lg:py-5 font-black text-slate-700 text-right">{currentPhase === "Ovulation" ? "High" : "Low"}</td></tr>
+                                    <tr><td className="px-4 lg:px-6 py-4 lg:py-5 font-bold text-slate-400 uppercase">Fertile window</td><td className="px-4 lg:px-6 py-4 lg:py-5 font-black text-slate-700 text-right">{format(new Date(prediction.fertileWindow.start), 'MMM d')} - {format(new Date(prediction.fertileWindow.end), 'MMM d')}</td></tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </section>
 
-                {/* SECTION 3: CYCLE HISTORY (BAR CHART) */}
-                <section className="bg-slate-900 p-8 lg:p-12 rounded-[3rem] shadow-2xl text-white">
-                    <div className="flex items-center gap-4 mb-12">
+                {/* SECTION 3: CYCLE HISTORY */}
+                <section className="bg-slate-900 p-6 lg:p-12 rounded-[2.5rem] lg:rounded-[3rem] shadow-2xl text-white">
+                    <div className="flex items-center gap-4 mb-8 lg:mb-12">
                         <div className="p-4 bg-white/10 text-rose-400 rounded-2xl"><FiDroplet size={28} /></div>
-                        <h2 className="text-3xl font-black tracking-tight">Cycle History</h2>
+                        <h2 className="text-2xl lg:text-3xl font-black tracking-tight">Cycle History</h2>
                     </div>
-                    <div className="grid lg:grid-cols-3 gap-12">
-
-                        {/* ref on the bar chart wrapper div */}
-                        <div ref={barChartRef} className="lg:col-span-2 h-[450px] bg-white/5 rounded-[2.5rem] p-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+                        <div ref={barChartRef} className="lg:col-span-2 h-[300px] lg:h-[450px] bg-white/5 rounded-[2.5rem] p-6 lg:p-8">
                             <ResponsiveContainer width="100%" height="100%" key={`bar-${barKey}`}>
                                 <BarChart data={paddedHistory}>
                                     <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 10 }} />
-                                    <Bar
-                                        dataKey="cycleLength"
-                                        fill="#E11D48"
-                                        radius={[10, 10, 10, 10]}
-                                        animationDuration={1200}
-                                    />
+                                    <Bar dataKey="cycleLength" fill="#E11D48" radius={[10, 10, 10, 10]} animationDuration={1200} />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
-
                         <div className="bg-white/5 rounded-[2.5rem] border border-white/5 overflow-hidden">
                             <table className="w-full">
-                                <tbody className="text-xs">
+                                <tbody className="text-[10px] lg:text-xs">
                                     {paddedHistory.map((row, index) => (
-                                        <tr key={index} className="hover:bg-white/5 transition-colors group">
-                                            <td className="px-6 py-6 font-black uppercase">{row.month}</td>
-                                            <td className="px-6 py-6 font-bold text-slate-500">{row.startDate}</td>
-                                            <td className="px-6 py-6 font-black text-right text-emerald-400">{row.cycleLength > 0 ? "REGULAR" : "-"}</td>
+                                        <tr key={index} className="hover:bg-white/5 transition-colors border-b border-white/5 last:border-0">
+                                            <td className="px-4 lg:px-6 py-5 lg:py-6 font-black uppercase">{row.month}</td>
+                                            <td className="px-4 lg:px-6 py-5 lg:py-6 font-bold text-slate-500">{row.startDate}</td>
+                                            <td className="px-4 lg:px-6 py-5 lg:py-6 font-black text-right text-emerald-400">{row.cycleLength > 0 ? "REGULAR" : "-"}</td>
                                         </tr>
                                     ))}
                                 </tbody>

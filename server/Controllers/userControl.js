@@ -37,7 +37,7 @@ const registerUser = async (req, res) => {
     ]);
 
     // 5. JWT and Response
-    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+    const token = jwt.sign({ id: newUser._id, email: newUser.email }, process.env.JWT_SECRET, { expiresIn: '24h' });
     
     return res.status(201).json({ 
       status: true,  
@@ -65,7 +65,7 @@ const userLogIn = async (req, res) => {
             const passwordMatch = await bcrypt.compare(password, userPassword);
 
             if(passwordMatch) {
-                const token = jwt.sign({id: gotUser._id, email: gotUser.email}, process.env.JWT_SECRET, {expiresIn: '5h'});
+                const token = jwt.sign({id: gotUser._id, email: gotUser.email}, process.env.JWT_SECRET, {expiresIn: '5h'}); 
                 return res.status(201).json({status: true, message: "Log In successfull", token: token, userData: {_id : gotUser._id, name : gotUser.name}});
             } else {
                 return res.status(400).json({status: false, message: "Invalid Credintails"});
@@ -86,7 +86,7 @@ const getTrackingData = async (req, res) => {
   const user = await User.findById(userId);
   
   // 2. Get the most recent period start date
-  const history = await Cycle.find({ userId }).sort({ startDate: -1 }).limit(6);
+  const history = await Cycle.find({ userId }).sort({ startDate: -1 }).limit(6); 
   const lastCycle = history[0];
 
   if (!lastCycle) return res.status(404).json({ message: "No data found" }); 
