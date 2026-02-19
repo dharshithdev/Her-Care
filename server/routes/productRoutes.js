@@ -5,7 +5,7 @@ const {getProduct, getCategory, addToCart, getCart, placeOrder} = require('../Co
 
 router.get('/categories', protect, getCategory);
 router.get('/products', protect, getProduct);
-router.post('/cart/update', protect, addToCart);
+router.post('/cart/update', protect, addToCart); 
 router.get('/cart', protect, getCart);
 router.post('/place-order', protect, placeOrder);
 

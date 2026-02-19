@@ -2,6 +2,8 @@ const User = require("../Model/User");
 const Cycle = require("../Model/Cycle");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const Order = require('../Model/Order');
+const Appointment = require('../Model/Appointment');
 const {calculateCycleData} = require('../Utils/CycleLogic');
 const { differenceInDays } = require('date-fns');
 require("dotenv").config()
@@ -166,4 +168,36 @@ const logActualPeriod = async (req, res) => {
     }
 };
 
-module.exports = {registerUser, userLogIn, getTrackingData, logActualPeriod};
+const getUserProfile = async (req, res) => {
+    try {
+        console.log('Here');
+        const user = await User.findById(req.user.id).select('-password');
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ message: "Server Error" });
+    }
+};
+
+const getUserOrders = async (req, res) => {
+    try {
+        const orders = await Order.find({ userId: req.user.id }).sort('-createdAt');
+        console.log(orders);
+        return res.json(orders);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching orders" });
+    }
+};
+
+const getUserAppointments = async (req, res) => {
+    try {
+        const appointments = await Appointment.find({ userId: req.user.id }).sort('date');
+        return res.json(appointments);
+    } catch (error) {
+        console.log('Here 2 : ', error.message);
+        res.status(500).json({ message: "Error fetching appointments" });
+    }
+};
+
+module.exports = {registerUser, userLogIn, getTrackingData, logActualPeriod, getUserProfile, getUserOrders,
+                getUserAppointments
+};

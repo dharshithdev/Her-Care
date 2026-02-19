@@ -11,6 +11,7 @@ import DoctorsPage from './Pages/Doctors';
 import BookAppointment from './Pages/BookAppointment';
 import ProductsPage from './Pages/Products';
 import CartPage from './Pages/Cart';
+import Account from './Pages/Account';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Route path="/bookappointment/:id" element={<BookAppointment />} />
         <Route path="/shop" element={<ProductsPage />} />
         <Route path="/cart" element={<CartPage />} />
+        <Route path="/account" element={<Account />} />
       </Routes>
   );
 }

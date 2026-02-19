@@ -52,7 +52,7 @@ const Register = () => {
 
         setIsLoading(true);
         try {
-            const result = await axios.post("http://localhost:5000/api/users/register", formData);
+            const result = await axios.post(`${process.env.REACT_APP_API_URL}/api/users/register`, formData);
             if (result.data.status) {
                 setFormMessage({ type: 'success', text: "Welcome to Her-Care!" });  
                 localStorage.setItem('token', result.data.token);  

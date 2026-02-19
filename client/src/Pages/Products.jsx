@@ -21,9 +21,9 @@ const ProductsPage = () => {
                 const config = { headers: { Authorization: `Bearer ${token}` } };
 
                 const [prodRes, catRes, cartRes] = await Promise.all([
-                    axios.get('http://localhost:5000/api/shop/products', config),
-                    axios.get('http://localhost:5000/api/shop/categories', config),
-                    axios.get('http://localhost:5000/api/shop/cart', config)
+                    axios.get(`${process.env.REACT_APP_API_URL}/api/shop/products`, config),
+                    axios.get(`${process.env.REACT_APP_API_URL}/api/shop/categories`, config),
+                    axios.get(`${process.env.REACT_APP_API_URL}/api/shop/cart`, config)
                 ]);
 
                 setProducts(prodRes.data.product || []);
@@ -59,7 +59,7 @@ const ProductsPage = () => {
 
         try {
             const token = localStorage.getItem('token');
-            await axios.post('http://localhost:5000/api/shop/cart/update', 
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/shop/cart/update`, 
                 { productId, action },
                 { headers: { Authorization: `Bearer ${token}` } }
             );

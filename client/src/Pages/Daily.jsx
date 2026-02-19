@@ -48,7 +48,7 @@ const DailyCheckIn = () => {
         journal: note
       };
 
-      await axios.post('http://localhost:5000/api/daily/mood', payload, {
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/daily/mood`, payload, {
         headers: { Authorization: `Bearer ${token}` }
       });
 

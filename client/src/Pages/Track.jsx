@@ -48,7 +48,7 @@ const TrackPage = () => {
     const fetchTrackingData = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get('http://localhost:5000/api/track/data', {
+            const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/track/data`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setTrackingData(res.data);
@@ -66,7 +66,7 @@ const TrackPage = () => {
         try {
             const token = localStorage.getItem('token');
             setSelectedFlow(flowType);
-            await axios.post('http://localhost:5000/api/track/log', 
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/track/log`, 
                 { actualStartDate: new Date(), flowType: flowType },
                 { headers: { Authorization: `Bearer ${token}` } }
             );

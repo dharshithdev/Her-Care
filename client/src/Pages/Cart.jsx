@@ -15,7 +15,7 @@ const CartPage = () => {
     const fetchCart = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get('http://localhost:5000/api/shop/cart', {
+            const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/shop/cart`, { 
                 headers: { Authorization: `Bearer ${token}` }
             });
             setCartItems(res.data.items || []);
@@ -36,7 +36,7 @@ const CartPage = () => {
         setIsPlacing(true);
         try {
             const token = localStorage.getItem('token');
-            await axios.post('http://localhost:5000/api/shop/place-order', {}, { 
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/shop/place-order`, {}, { 
                 headers: { Authorization: `Bearer ${token}` }
             });
             setOrderSuccess(true);

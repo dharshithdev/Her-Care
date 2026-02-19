@@ -38,7 +38,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const result = await axios.post("http://localhost:5000/api/users/login", formData);
+      const result = await axios.post(`${process.env.REACT_APP_API_URL}/api/users/login`, formData);
       if (result.data.status) {
         setFormMessage({ type: 'success', text: result.data.message });
         localStorage.setItem('token', result.data.token); 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiCalendar, FiZap, FiUser, FiShoppingCart, FiArrowRight } from 'react-icons/fi';
 import thinkingGirl from "../Assets/thinkingGirl.png";
@@ -8,6 +8,15 @@ import Footer from "../Components/Footer";
 
 const Index = () => {
     const navigate = useNavigate();
+
+    // PROFESSIONAL LOG-IN CHECK
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            // If token exists, the user is already authenticated
+            navigate('/track', { replace: true });
+        }
+    }, [navigate]);
 
     return (
         <div className="relative bg-[#F8FAFC] scroll-smooth font-sans text-slate-800">
@@ -31,7 +40,7 @@ const Index = () => {
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
                             <button 
-                                onClick={() => navigate('/explore')}
+                                onClick={() => navigate('/login')}
                                 className="w-full sm:w-auto bg-slate-900 hover:bg-rose-500 text-white px-10 py-5 rounded-2xl text-lg font-bold transition-all duration-300 shadow-xl shadow-slate-200 flex items-center justify-center gap-3 group"
                             >
                                 Start tracking <FiArrowRight className="group-hover:translate-x-2 transition-transform" />

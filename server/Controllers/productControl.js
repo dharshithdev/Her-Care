@@ -33,8 +33,7 @@ const getProduct = async (req, res) => {
 const addToCart = async (req, res) => {
     try {
         const { productId, action } = req.body; // action: 'add' or 'remove'
-        const userId = req.user.id;
-
+        const userId = req.user.id; 
         let cart = await Cart.findOne({ userId });
 
         if (!cart) {
