@@ -3,7 +3,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, 
 import { FiCalendar, FiDroplet, FiActivity } from 'react-icons/fi';
 import MainHeader from '../Components/MainHeader';
 import Footer from "../Components/Footer";
-import axios from 'axios';
+import api from '../Utils/axiosConfig';
 import { format, addDays, isSameDay, differenceInDays, subMonths } from 'date-fns';
 
 const useInView = () => {
@@ -48,7 +48,7 @@ const TrackPage = () => {
     const fetchTrackingData = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/track/data`, {
+            const res = await api.get(`${process.env.REACT_APP_API_URL}/api/track/data`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setTrackingData(res.data);
@@ -66,7 +66,7 @@ const TrackPage = () => {
         try {
             const token = localStorage.getItem('token');
             setSelectedFlow(flowType);
-            await axios.post(`${process.env.REACT_APP_API_URL}/api/track/log`, 
+            await api.post(`${process.env.REACT_APP_API_URL}/api/track/log`, 
                 { actualStartDate: new Date(), flowType: flowType },
                 { headers: { Authorization: `Bearer ${token}` } }
             );

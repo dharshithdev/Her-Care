@@ -4,7 +4,7 @@ import { FiMail, FiLock, FiEye, FiEyeOff, FiArrowRight, FiCheck } from 'react-ic
 import loginImage from "../Assets/loginImage.png";
 import googleLogo from '../Assets/google.png';
 import appleLogo from '../Assets/apple.png';
-import axios from 'axios';
+import api from '../Utils/axiosConfig';
 import Header from '../Components/Header';
 
 const Login = () => {
@@ -38,7 +38,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const result = await axios.post(`${process.env.REACT_APP_API_URL}/api/users/login`, formData);
+      const result = await api.post(`${process.env.REACT_APP_API_URL}/api/users/login`, formData);
       if (result.data.status) {
         setFormMessage({ type: 'success', text: result.data.message });
         localStorage.setItem('token', result.data.token); 

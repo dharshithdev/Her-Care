@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../Utils/axiosConfig';
 import MainHeader from '../Components/MainHeader';
 import Footer from '../Components/Footer';
 import { FiMapPin, FiStar } from 'react-icons/fi';
@@ -15,7 +15,7 @@ const DoctorsPage = () => {
         const fetchDoctors = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/appointments/get-doctors`, {
+                const res = await api.get(`${process.env.REACT_APP_API_URL}/api/appointments/get-doctors`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setDoctors(res.data); 

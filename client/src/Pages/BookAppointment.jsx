@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../Utils/axiosConfig';
 import { motion } from "framer-motion";
 import MainHeader from '../Components/MainHeader';
 import { FiCheckCircle, FiArrowLeft } from 'react-icons/fi';
@@ -24,7 +24,7 @@ const BookAppointment = () => {
         const getDoctorDetails = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/appointments/get-doctors/${id}`, {
+                const res = await api.get(`${process.env.REACT_APP_API_URL}/api/appointments/get-doctors/${id}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setDoctor(res.data);
@@ -47,7 +47,7 @@ const BookAppointment = () => {
         setBooking(true);
         try {
             const token = localStorage.getItem('token');
-            await axios.post(`${process.env.REACT_APP_API_URL}/api/appointments/book-appointment`, 
+            await api.post(`${process.env.REACT_APP_API_URL}/api/appointments/book-appointment`, 
                 { doctorId: id, date: selectedDate, time: selectedTime },
                 { headers: { Authorization: `Bearer ${token}` } }
             );

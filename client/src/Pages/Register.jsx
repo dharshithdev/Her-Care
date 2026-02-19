@@ -4,7 +4,7 @@ import { FiUser, FiMail, FiLock, FiCalendar, FiEye, FiEyeOff, FiArrowRight, FiCh
 import registerImage from '../Assets/registerImage.png';
 import googleLogo from '../Assets/google.png';
 import appleLogo from '../Assets/apple.png';
-import axios from 'axios';
+import api from '../Utils/axiosConfig';
 import Header from '../Components/Header'
 
 const Register = () => {
@@ -52,7 +52,7 @@ const Register = () => {
 
         setIsLoading(true);
         try {
-            const result = await axios.post(`${process.env.REACT_APP_API_URL}/api/users/register`, formData);
+            const result = await api.post(`${process.env.REACT_APP_API_URL}/api/users/register`, formData);
             if (result.data.status) {
                 setFormMessage({ type: 'success', text: "Welcome to Her-Care!" });  
                 localStorage.setItem('token', result.data.token);  

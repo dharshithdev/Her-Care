@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../Utils/axiosConfig';
 import { useNavigate } from "react-router-dom";
 import MainHeader from '../Components/MainHeader';
 import Footer from '../Components/Footer';
@@ -21,9 +21,9 @@ const ProductsPage = () => {
                 const config = { headers: { Authorization: `Bearer ${token}` } };
 
                 const [prodRes, catRes, cartRes] = await Promise.all([
-                    axios.get(`${process.env.REACT_APP_API_URL}/api/shop/products`, config),
-                    axios.get(`${process.env.REACT_APP_API_URL}/api/shop/categories`, config),
-                    axios.get(`${process.env.REACT_APP_API_URL}/api/shop/cart`, config)
+                    api.get(`${process.env.REACT_APP_API_URL}/api/shop/products`, config),
+                    api.get(`${process.env.REACT_APP_API_URL}/api/shop/categories`, config),
+                    api.get(`${process.env.REACT_APP_API_URL}/api/shop/cart`, config)
                 ]);
 
                 setProducts(prodRes.data.product || []);
@@ -59,7 +59,7 @@ const ProductsPage = () => {
 
         try {
             const token = localStorage.getItem('token');
-            await axios.post(`${process.env.REACT_APP_API_URL}/api/shop/cart/update`, 
+            await api.post(`${process.env.REACT_APP_API_URL}/api/shop/cart/update`, 
                 { productId, action },
                 { headers: { Authorization: `Bearer ${token}` } }
             );

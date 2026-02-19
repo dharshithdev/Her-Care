@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../Utils/axiosConfig';
 import { useNavigate } from 'react-router-dom';
 import Footer from "../Components/Footer";
 import MainHeader from "../Components/MainHeader";
@@ -48,7 +48,7 @@ const DailyCheckIn = () => {
         journal: note
       };
 
-      await axios.post(`${process.env.REACT_APP_API_URL}/api/daily/mood`, payload, {
+      await api.post(`${process.env.REACT_APP_API_URL}/api/daily/mood`, payload, {
         headers: { Authorization: `Bearer ${token}` }
       });
 

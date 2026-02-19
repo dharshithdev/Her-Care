@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FiUser, FiMail, FiLock, FiShoppingBag, FiCalendar, FiChevronRight, FiLogOut } from 'react-icons/fi';
 import MainHeader from '../Components/MainHeader';
 import Footer from '../Components/Footer';
-import axios from 'axios';
+import api from '../Utils/axiosConfig';
 
 const Account = () => {
     const [user, setUser] = useState(null);
@@ -16,13 +16,13 @@ const Account = () => {
             
             try {
                 // In a real app, use Promise.all for faster loading 
-                const userRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/profile`, config);
+                const userRes = await api.get(`${process.env.REACT_APP_API_URL}/api/users/profile`, config);
                 setUser(userRes.data);
                 
-                const orderRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/my-orders`, config);
+                const orderRes = await api.get(`${process.env.REACT_APP_API_URL}/api/users/my-orders`, config);
                 setOrders(orderRes.data);
 
-                const appointRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/my-appointments`, config);
+                const appointRes = await api.get(`${process.env.REACT_APP_API_URL}/api/users/my-appointments`, config);
                 setAppointments(appointRes.data);
             } catch (err) {
                 console.error("Error fetching account data", err.message);
