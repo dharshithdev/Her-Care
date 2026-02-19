@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
+import { LineChart, Line, XAxis, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
 import { FiCalendar, FiDroplet, FiActivity } from 'react-icons/fi';
 import MainHeader from '../Components/MainHeader';
 import Footer from "../Components/Footer";

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiUser, FiMail, FiLock, FiShoppingBag, FiCalendar, FiChevronRight, FiLogOut } from 'react-icons/fi';
+import { FiUser, FiLock, FiShoppingBag, FiCalendar, FiChevronRight, FiLogOut } from 'react-icons/fi';
 import MainHeader from '../Components/MainHeader';
 import Footer from '../Components/Footer';
 import api from '../Utils/axiosConfig';

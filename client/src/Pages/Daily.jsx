@@ -3,7 +3,7 @@ import api from '../Utils/axiosConfig';
 import { useNavigate } from 'react-router-dom';
 import Footer from "../Components/Footer";
 import MainHeader from "../Components/MainHeader";
-import { FiEdit3, FiCheck, FiCalendar, FiSun, FiActivity, FiX, FiInfo } from 'react-icons/fi';
+import { FiEdit3, FiCheck, FiSun, FiActivity, FiX, FiInfo } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const DailyCheckIn = () => {

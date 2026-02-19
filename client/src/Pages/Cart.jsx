@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../Utils/axiosConfig';
 import { useNavigate } from 'react-router-dom';
 import MainHeader from '../Components/MainHeader';
-import { FiTrash2, FiArrowLeft, FiShoppingBag, FiCheck } from 'react-icons/fi';
+import { FiArrowLeft, FiShoppingBag, FiCheck } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const CartPage = () => {
