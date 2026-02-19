@@ -9,6 +9,7 @@ import AboutUs from './Pages/About';
 import DailyCheckIn from './Pages/Daily';
 import DoctorsPage from './Pages/Doctors';
 import BookAppointment from './Pages/BookAppointment';
+import ProductsPage from './Pages/Products';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/daily" element={<DailyCheckIn   />} />
         <Route path="/appointments" element={<DoctorsPage />} />
         <Route path="/bookappointment/:id" element={<BookAppointment />} />
+        <Route path="/shop" element={<ProductsPage />} />
 
       </Routes>
   );

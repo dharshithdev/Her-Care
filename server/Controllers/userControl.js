@@ -40,7 +40,7 @@ const registerUser = async (req, res) => {
     const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
     
     return res.status(201).json({ 
-      status: true, 
+      status: true,  
       token, 
       userData: { id: newUser._id, name: newUser.name } 
     });
@@ -66,7 +66,7 @@ const userLogIn = async (req, res) => {
 
             if(passwordMatch) {
                 const token = jwt.sign({id: gotUser._id, email: gotUser.email}, process.env.JWT_SECRET, {expiresIn: '5h'});
-                return res.status(201).json({status: true, message: "Log In successfull", token: token, userData: {_id : gotUser._id, email : gotUser.email}});
+                return res.status(201).json({status: true, message: "Log In successfull", token: token, userData: {_id : gotUser._id, name : gotUser.name}});
             } else {
                 return res.status(400).json({status: false, message: "Invalid Credintails"});
             }

@@ -267,7 +267,7 @@ const phasesUI = [
                                 <tbody className="text-sm">
                                     <tr><td className="px-6 py-5 font-bold text-slate-400 uppercase">Current Phase</td><td className="px-6 py-5 font-black text-rose-600 text-right">{currentPhase}</td></tr>
                                     <tr className="border-y border-white"><td className="px-6 py-5 font-bold text-slate-400 uppercase">Fertility</td><td className="px-6 py-5 font-black text-slate-700 text-right">{currentPhase === "Ovulation" ? "High" : "Low"}</td></tr>
-                                    <tr className="border-y border-white"><td className="px-6 py-5 font-bold text-slate-400 uppercase">Fertile window</td><td className="px-6 py-5 font-black text-slate-700 text-right">{format(new Date(prediction.fertileWindow.start), 'MMM d')} - {format(new Date(prediction.fertileWindow.end), 'MMM d')}</td></tr>
+                                    <tr className="border-y border-white"><td className="px-6 py-5 font-bold text-slate-400 uppercase">Fertile window</td><td className="px-6 py-5 font-black text-slate-700 text-right">{format(new Date(prediction.fertileWindow.start), 'MMM d')} - {format(new Date(prediction.fertileWindow.end), 'MMM d')} [6 Days]</td></tr>
                                 </tbody>
                             </table>
                         </div>
