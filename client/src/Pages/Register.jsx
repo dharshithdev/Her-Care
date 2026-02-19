@@ -55,7 +55,7 @@ const Register = () => {
             const result = await axios.post("http://localhost:5000/api/users/register", formData);
             if (result.data.status) {
                 setFormMessage({ type: 'success', text: "Welcome to Her-Care!" });  
-                localStorage.setItem('token', result.data.token); 
+                localStorage.setItem('token', result.data.token);  
                 setTimeout(() => navigate("/track"), 1500); 
             }
         } catch (error) {

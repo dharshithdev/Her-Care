@@ -12,7 +12,7 @@ const MainHeader = () => {
     // Handle Logout
     const handleLogout = () => {
         localStorage.removeItem('token'); 
-        navigate('/login');
+        navigate('/home');
     };
 
     // Change background opacity on scroll
@@ -60,7 +60,7 @@ const MainHeader = () => {
                         </h1>
                     </Link>
 
-                    {/* Desktop Navigation Links */}
+                    {/* Desktop Navigation Links - ABSOLUTELY UNTOUCHED */}
                     <nav className="hidden md:block">
                         <ul className="flex items-center gap-2">
                             {navLinks.map((link) => {
@@ -104,54 +104,49 @@ const MainHeader = () => {
                             {isMobileMenuOpen ? <FiX size={20} /> : <FiMenu size={20} />}
                         </button>
                     </div>
-                </div>
 
-                {/* Mobile Fullscreen Menu */}
-                <AnimatePresence>
-                    {isMobileMenuOpen && (
-                        <motion.div 
-                            initial={{ opacity: 0, y: -20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            className="fixed inset-x-0 top-0 mt-20 mx-auto w-full p-4 md:hidden z-[90]"
-                        >
-                            <div className="bg-white rounded-3xl border border-slate-100 shadow-2xl p-6 overflow-hidden">
-                                <ul className="flex flex-col gap-2">
+                    {/* NEW: Small Compact Mobile Menu (Dropdown Style) */}
+                    <AnimatePresence>
+                        {isMobileMenuOpen && (
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                className="absolute top-[115%] right-0 w-48 bg-white rounded-2xl border border-slate-100 shadow-2xl p-2 md:hidden z-[120]"
+                            >
+                                <ul className="flex flex-col gap-1">
                                     {navLinks.map((link) => {
                                         const isActive = location.pathname === link.path;
                                         return (
                                             <li key={link.name}>
                                                 <Link
                                                     to={link.path}
-                                                    className={`flex items-center justify-between px-6 py-4 rounded-2xl text-base font-black uppercase tracking-widest transition-all
-                                                        ${isActive 
-                                                            ? 'bg-rose-500 text-white' 
-                                                            : 'bg-slate-50 text-slate-600'
-                                                        }
+                                                    className={`flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all
+                                                        ${isActive ? 'bg-rose-500 text-white' : 'text-slate-600 hover:bg-slate-50'}
                                                     `}
                                                 >
                                                     {link.name}
-                                                    {isActive && <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />}
+                                                    {isActive && <div className="w-1 h-1 bg-white rounded-full" />}
                                                 </Link>
                                             </li>
                                         );
                                     })}
-                                    <li className="mt-4 pt-4 border-t border-slate-100">
+                                    <li className="mt-1 pt-1 border-t border-slate-50">
                                         <button 
                                             onClick={handleLogout}
-                                            className="w-full flex items-center justify-center gap-3 bg-slate-900 text-white py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-xl active:scale-95"
+                                            className="w-full flex items-center gap-2 px-4 py-3 rounded-xl text-xs font-bold text-red-500 hover:bg-red-50 transition-all"
                                         >
-                                            <FiLogOut /> Log Out
+                                            <FiLogOut size={14} /> Log Out
                                         </button>
                                     </li>
                                 </ul>
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
             </header>
             
-            {/* Background overlay for mobile menu */}
+            {/* Background overlay - Invisible on laptop */}
             <AnimatePresence>
                 {isMobileMenuOpen && (
                     <motion.div 
@@ -159,7 +154,7 @@ const MainHeader = () => {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-80 md:hidden"
+                        className="fixed inset-0 bg-slate-900/10 backdrop-blur-[2px] z-[80] md:hidden"
                     />
                 )}
             </AnimatePresence>

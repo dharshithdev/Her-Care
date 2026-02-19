@@ -113,7 +113,7 @@ const getTrackingData = async (req, res) => {
     })); 
 
   res.json({
-    currentPhase,
+    currentPhase, 
     nextPeriodIn: differenceInDays(prediction.nextPeriodDate, today),
     prediction,
     fullCycleData

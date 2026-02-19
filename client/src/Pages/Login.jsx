@@ -41,7 +41,7 @@ const Login = () => {
       const result = await axios.post("http://localhost:5000/api/users/login", formData);
       if (result.data.status) {
         setFormMessage({ type: 'success', text: result.data.message });
-        localStorage.setItem('token', result.data.token);
+        localStorage.setItem('token', result.data.token); 
         setTimeout(() => navigate("/track"), 1500);
       }
     } catch (error) {
