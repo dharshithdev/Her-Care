@@ -66,41 +66,42 @@ const Register = () => {
     };
 
     return (
-        /* pt-32 adds the necessary space for the floating Header */
-        <div className="min-h-screen bg-[#FDFCFD] flex items-center justify-center p-6 lg:p-12 pt-32 font-sans relative overflow-x-hidden">
+        /* Adjusted padding for mobile (p-4) vs desktop (lg:p-12) */
+        <div className="min-h-screen bg-[#FDFCFD] flex items-center justify-center p-4 sm:p-6 lg:p-12 pt-24 md:pt-32 font-sans relative overflow-x-hidden">
             
             <Header />
 
-            {/* Background Decorative Blurs */}
-            <div className="fixed top-0 right-0 w-96 h-96 bg-rose-100 rounded-full blur-[120px] opacity-60 translate-x-1/2 -translate-y-1/2 pointer-events-none" />
-            <div className="fixed bottom-0 left-0 w-96 h-96 bg-indigo-100 rounded-full blur-[120px] opacity-60 -translate-x-1/2 translate-y-1/2 pointer-events-none" />
+            {/* Background Decorative Blurs - hidden on small screens for performance */}
+            <div className="hidden md:block fixed top-0 right-0 w-96 h-96 bg-rose-100 rounded-full blur-[120px] opacity-60 translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+            <div className="hidden md:block fixed bottom-0 left-0 w-96 h-96 bg-indigo-100 rounded-full blur-[120px] opacity-60 -translate-x-1/2 translate-y-1/2 pointer-events-none" />
 
-            <div className="max-w-6xl w-full bg-white/80 backdrop-blur-2xl rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-white flex flex-col md:flex-row overflow-hidden relative z-10">
+            {/* Main Card: flex-col on mobile, flex-row on md+ */}
+            <div className="max-w-6xl w-full bg-white/80 backdrop-blur-2xl rounded-[2rem] md:rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-white flex flex-col md:flex-row overflow-hidden relative z-10">
                 
-                {/* Form Section */}
-                <div className="w-full md:w-1/2 p-8 lg:p-12 flex flex-col justify-center border-r border-slate-50">
+                {/* Form Section: order-2 on mobile so form appears below if image was shown, but here image is hidden on mobile */}
+                <div className="w-full md:w-1/2 p-6 sm:p-10 lg:p-12 flex flex-col justify-center border-r border-slate-50">
                     <div className="max-w-md mx-auto w-full">
-                        <div className="mb-8">
-                            <h2 className="text-4xl font-black text-slate-900 tracking-tight mb-2">Join Her-Care</h2>
-                            <p className="text-slate-500 font-medium italic">Start your journey today.</p>
+                        <div className="mb-8 text-center md:text-left">
+                            <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-2">Join Her-Care</h2>
+                            <p className="text-slate-500 font-medium italic text-sm">Start your journey today.</p>
                         </div>
 
                         {formMessage.text && (
-                            <div className={`mb-6 p-4 rounded-2xl flex items-center gap-3 text-sm font-bold ${
+                            <div className={`mb-6 p-4 rounded-2xl flex items-center gap-3 text-sm font-bold animate-in fade-in slide-in-from-top-2 ${
                                 formMessage.type === 'success' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
                             }`}>
                                 {formMessage.type === 'success' ? <FiCheckCircle /> : '!'} {formMessage.text}
                             </div>
                         )}
 
-                        <form onSubmit={handleSubmit} className="space-y-5">
+                        <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5">
                             {/* Name Field */}
                             <div className="space-y-1">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Full Name</label>
                                 <div className="relative group">
                                     <FiUser className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-rose-500 transition-colors" />
                                     <input name="name" type="text" value={formData.name} onChange={handleChange} placeholder="Sarah Jenkins"
-                                        className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-rose-50 transition-all outline-none font-medium" />
+                                        className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-xl md:rounded-2xl focus:ring-4 focus:ring-rose-50 transition-all outline-none font-medium text-sm md:text-base" />
                                 </div>
                                 {errors.name && <p className="text-[10px] font-bold text-rose-500 ml-1">{errors.name}</p>}
                             </div>
@@ -111,24 +112,24 @@ const Register = () => {
                                 <div className="relative group">
                                     <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-rose-500 transition-colors" />
                                     <input name="email" type="email" value={formData.email} onChange={handleChange} placeholder="sarah@example.com"
-                                        className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-rose-50 transition-all outline-none font-medium" />
+                                        className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-xl md:rounded-2xl focus:ring-4 focus:ring-rose-50 transition-all outline-none font-medium text-sm md:text-base" />
                                 </div>
                                 {errors.email && <p className="text-[10px] font-bold text-rose-500 ml-1">{errors.email}</p>}
                             </div>
 
-                            {/* Period Dates (Two Columns) */}
+                            {/* Period Dates (Stays 2 columns on small screens, adjust gap) */}
                             <div className="space-y-1">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Last Cycle Range</label>
-                                <div className="flex gap-3">
+                                <div className="flex flex-row gap-2 md:gap-3">
                                     <div className="relative flex-1 group">
-                                        <FiCalendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-rose-500 pointer-events-none" />
+                                        <FiCalendar className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-rose-500 pointer-events-none text-xs md:text-base" />
                                         <input name="recentDay1" type="date" value={formData.recentDay1} onChange={handleChange}
-                                            className="w-full pl-11 pr-3 py-3 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-rose-50 transition-all outline-none font-medium text-sm text-slate-600 uppercase" />
+                                            className="w-full pl-8 md:pl-11 pr-2 py-3 bg-slate-50 border-none rounded-xl md:rounded-2xl focus:ring-4 focus:ring-rose-50 transition-all outline-none font-medium text-[10px] md:text-sm text-slate-600 uppercase" />
                                     </div>
                                     <div className="relative flex-1 group">
-                                        <FiCalendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-rose-500 pointer-events-none" />
+                                        <FiCalendar className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-rose-500 pointer-events-none text-xs md:text-base" />
                                         <input name="recentDay2" type="date" value={formData.recentDay2} onChange={handleChange}
-                                            className="w-full pl-11 pr-3 py-3 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-rose-50 transition-all outline-none font-medium text-sm text-slate-600 uppercase" />
+                                            className="w-full pl-8 md:pl-11 pr-2 py-3 bg-slate-50 border-none rounded-xl md:rounded-2xl focus:ring-4 focus:ring-rose-50 transition-all outline-none font-medium text-[10px] md:text-sm text-slate-600 uppercase" />
                                     </div>
                                 </div>
                                 {(errors.recentDay1 || errors.recentDay2) && <p className="text-[10px] font-bold text-rose-500 ml-1">Dates are required</p>}
@@ -140,7 +141,7 @@ const Register = () => {
                                 <div className="relative group">
                                     <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-rose-500 transition-colors" />
                                     <input name="password" type={showPassword ? 'text' : 'password'} value={formData.password} onChange={handleChange} placeholder="••••••••"
-                                        className="w-full pl-12 pr-12 py-3 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-rose-50 transition-all outline-none font-medium" />
+                                        className="w-full pl-12 pr-12 py-3 bg-slate-50 border-none rounded-xl md:rounded-2xl focus:ring-4 focus:ring-rose-50 transition-all outline-none font-medium text-sm md:text-base" />
                                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
                                         {showPassword ? <FiEyeOff /> : <FiEye />}
                                     </button>
@@ -149,25 +150,26 @@ const Register = () => {
                             </div>
 
                             {/* Terms */}
-                            <div className="flex items-center gap-3 ml-1 py-2">
+                            <div className="flex items-start gap-3 ml-1 py-1">
                                 <input name="agreeToTerms" type="checkbox" id="terms" checked={formData.agreeToTerms} onChange={handleChange}
-                                    className="w-5 h-5 rounded-lg border-slate-200 text-rose-500 focus:ring-rose-500" />
-                                <label htmlFor="terms" className="text-xs text-slate-500 font-medium cursor-pointer">
+                                    className="mt-1 w-5 h-5 rounded-lg border-slate-200 text-rose-500 focus:ring-rose-500" />
+                                <label htmlFor="terms" className="text-[11px] md:text-xs text-slate-500 font-medium cursor-pointer leading-tight">
                                     I agree to the <Link to="/terms" className="text-rose-500 font-bold hover:underline">Terms</Link> & <Link to="/policy" className="text-rose-500 font-bold hover:underline">Policy</Link>
                                 </label>
                             </div>
 
                             <button type="submit" disabled={isLoading}
-                                className="w-full py-4 bg-slate-900 hover:bg-rose-500 text-white rounded-[1.5rem] font-black shadow-xl shadow-slate-200 hover:shadow-rose-100 transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50">
+                                className="w-full py-4 bg-slate-900 hover:bg-rose-500 text-white rounded-xl md:rounded-[1.5rem] font-black shadow-xl shadow-slate-200 hover:shadow-rose-100 transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50 text-sm md:text-base">
                                 {isLoading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>Create Account <FiArrowRight /></>}
                             </button>
                         </form>
 
+                        {/* Social Logins: Column on very small, row on sm+ */}
                         <div className="mt-8 flex flex-col sm:flex-row gap-3">
-                            <button className="flex-1 flex items-center justify-center gap-2 py-3 border-2 border-slate-50 rounded-2xl hover:bg-slate-50 font-bold text-xs text-slate-600 transition-colors">
+                            <button className="flex-1 flex items-center justify-center gap-2 py-3 border-2 border-slate-50 rounded-xl md:rounded-2xl hover:bg-slate-50 font-bold text-xs text-slate-600 transition-colors">
                                 <img src={googleLogo} alt="G" className="w-4 h-4" /> Google
                             </button>
-                            <button className="flex-1 flex items-center justify-center gap-2 py-3 border-2 border-slate-50 rounded-2xl hover:bg-slate-50 font-bold text-xs text-slate-600 transition-colors">
+                            <button className="flex-1 flex items-center justify-center gap-2 py-3 border-2 border-slate-50 rounded-xl md:rounded-2xl hover:bg-slate-50 font-bold text-xs text-slate-600 transition-colors">
                                 <img src={appleLogo} alt="A" className="w-4 h-4" /> Apple
                             </button>
                         </div>
@@ -178,7 +180,7 @@ const Register = () => {
                     </div>
                 </div>
 
-                {/* Editorial Image Section */}
+                {/* Editorial Image Section: Hidden on mobile */}
                 <div className="hidden md:flex md:w-1/2 bg-indigo-50/30 items-center justify-center p-12 relative overflow-hidden">
                     <img src={registerImage} alt="Wellness" className="w-full max-h-[450px] object-contain relative z-10" />
                     

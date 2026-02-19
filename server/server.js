@@ -22,6 +22,13 @@ app.use('/api/appointments', appointmentRoutes);
 app.use('/api/shop', productRoutes);
 app.use('/api/daily', dailyRoutes);
 
+app.use((err, req, res, next) => {
+    const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+    res.status(statusCode).json({
+        message: err.message,
+        stack: process.env.NODE_ENV === 'production' ? null : err.stack,
+    });
+});
 
 mongoose.connect(process.env.MONGO_URI).then(() => {
     console.log(`Connected to MongoDB`);
