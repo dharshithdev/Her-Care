@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { FiInstagram, FiTwitter, FiFacebook, FiHeart } from 'react-icons/fi';
 
 const Footer = () => {
@@ -68,8 +68,8 @@ const Footer = () => {
               <li>
                 <button onClick={() => handleNavClick('path', '/aboutus')} className="hover:text-rose-500 transition-colors uppercase">About</button>
               </li>
-              <li><a href="#" className="hover:text-rose-500 transition-colors">Privacy</a></li>
-              <li><a href="#" className="hover:text-rose-500 transition-colors">Support</a></li>
+              <li><a href="/privacy" className="hover:text-rose-500 transition-colors">Privacy</a></li>
+              <li><a href="/support" className="hover:text-rose-500 transition-colors">Support</a></li>
             </ul>
           </nav>
 
@@ -78,7 +78,7 @@ const Footer = () => {
             {[<FiInstagram />, <FiTwitter />, <FiFacebook />].map((icon, idx) => (
               <a 
                 key={idx} 
-                href="#" 
+                href="/instagram" 
                 className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-rose-500 hover:text-white transition-all duration-300 shadow-sm"
               >
                 {icon}
