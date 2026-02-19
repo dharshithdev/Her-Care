@@ -14,12 +14,13 @@ const userRoutes = require('./routes/userRoutes');
 const cycleRoutes = require('./routes/trackRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
 const productRoutes = require('./routes/productRoutes');
+const dailyRoutes = require('./routes/dailyRoutes');
 
 app.use('/api/users', userRoutes);
 app.use('/api/track', cycleRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/shop', productRoutes);
-
+app.use('/api/daily', dailyRoutes);
 
 
 mongoose.connect(process.env.MONGO_URI).then(() => {

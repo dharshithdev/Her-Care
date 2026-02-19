@@ -1,7 +1,7 @@
 const Product = require('../Model/Product');
 const Category = require('../Model/Category');
 const Cart = require('../Model/Cart');
-
+const Order = require('../Model/Order');
 const getCategory = async (req, res) => {
     try{
         const categories = await Category.find();
@@ -74,4 +74,44 @@ const getCart = async (req, res) => {
     }
 };
 
-module.exports = {getCategory, getProduct, addToCart, getCart};
+const placeOrder = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        
+        // 1. Get the current cart
+        const cart = await Cart.findOne({ userId }).populate('items.productId');
+        
+        if (!cart || cart.items.length === 0) {
+            return res.status(400).json({ message: "Cart is empty" });
+        }
+
+        // 2. Calculate Total
+        const totalAmount = cart.items.reduce((acc, item) => {
+            return acc + (item.productId.price * item.quantity);
+        }, 0);
+
+        // 3. Create Order
+        const newOrder = new Order({
+            userId,
+            items: cart.items.map(item => ({
+                productId: item.productId._id,
+                name: item.productId.name,
+                price: item.productId.price,
+                quantity: item.quantity
+            })),
+            totalAmount
+        });
+
+        await newOrder.save();
+
+        // 4. Clear the Cart
+        await Cart.findOneAndDelete({ userId });
+
+        res.status(201).json({ message: "Order placed successfully", orderId: newOrder._id });
+    } catch (error) {
+        console.log('Error ', error.message);
+        res.status(500).json({ message: "Server error during ordering" });
+    }
+};
+
+module.exports = {getCategory, getProduct, addToCart, getCart, placeOrder};
