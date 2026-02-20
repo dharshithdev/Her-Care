@@ -29,7 +29,7 @@ const CartPage = () => {
     useEffect(() => { fetchCart(); }, []);
 
     const subtotal = cartItems.reduce((acc, item) => acc + (item.productId.price * item.quantity), 0);
-    const shipping = subtotal > 0 ? 50 : 0;
+    const shipping = Math.round(subtotal > 0 ? 50 : 0);
     const total = Math.round(subtotal + shipping);
 
     const handlePlaceOrder = async () => {
