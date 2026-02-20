@@ -7,12 +7,13 @@ import Footer from '../Components/Footer';
 
 const Luna = () => {
   return (
-    /* We use min-h-screen and flex-col to push the footer down */
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-purple-50 to-white">
       <MainHeader />
 
-      {/* Main content area - flex-1 ensures it fills the gap between header and footer */}
-      <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 text-center">
+      {/* FIX: Added pt-24 (padding-top) to ensure content starts AFTER the header.
+          Adjust the pt-24 to pt-20 or pt-32 depending on how tall your header is.
+      */}
+      <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 pt-24 sm:pt-32 text-center">
         
         {/* Animated Icon Container */}
         <motion.div
