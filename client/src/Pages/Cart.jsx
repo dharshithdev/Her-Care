@@ -117,7 +117,7 @@ const CartPage = () => {
                                     : 'bg-rose-500 hover:bg-rose-400 text-white shadow-lg shadow-rose-900/20'
                                 }`}
                             >
-                                {isPlacing ? "Processing..." : "Place Order Now"}
+                                {isPlacing ? "Processing..." : "Place Order Now!"}
                             </button>
                         </div>
                     </div>
