@@ -12,6 +12,7 @@ import BookAppointment from './Pages/BookAppointment';
 import ProductsPage from './Pages/Products';
 import CartPage from './Pages/Cart';
 import Account from './Pages/Account';
+import Luna from './Pages/Luna';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
         <Route path="/shop" element={<ProductsPage />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/account" element={<Account />} />
+        <Route path="/luna" element={<Luna />} />
       </Routes>
   );
 }
