@@ -7,4 +7,4 @@ const cycleSchema = mongoose.Schema({
   isPredicted: { type: Boolean, default: false } // To distinguish between user-input and estimates
 }, {timestamps: true});
  
-module.exports = mongoose.model('Cycle', cycleSchema);
+module.exports = mongoose.model('Cycle', cycleSchema);   

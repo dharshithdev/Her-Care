@@ -4,8 +4,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Order = require('../Model/Order');
 const Appointment = require('../Model/Appointment');
-const {calculateCycleData} = require('../Utils/CycleLogic');
-const { differenceInDays } = require('date-fns');
+const {calculateCycleData, findMenstrualLength} = require('../Utils/CycleLogic');
+const { differenceInDays, startOfDay, format } = require('date-fns'); 
 require("dotenv").config()
 
 const registerUser = async (req, res) => {
@@ -29,7 +29,8 @@ const registerUser = async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      avgCycleLength: initialCycleLength || 28 // Fallback to 28 if math fails
+      avgCycleLength: initialCycleLength || 28, // Fallback to 28 if math fails
+      avgPeriodLength: findMenstrualLength(initialCycleLength) || 5  
     });
 
     // 4. Save the "Logs" - Store both provided dates as real history
@@ -83,43 +84,58 @@ const userLogIn = async (req, res) => {
 } 
 
 const getTrackingData = async (req, res) => {
-  const userId = req.user.id; //Middleware
+    try {
+          const userId = req.user.id; //Middleware
 
-  const user = await User.findById(userId);
-  
-  // 2. Get the most recent period start date
-  const history = await Cycle.find({ userId }).sort({ startDate: -1 }).limit(6); 
-  const lastCycle = history[0];
+          const user = await User.findById(userId);
 
-  if (!lastCycle) return res.status(404).json({ message: "No data found" }); 
+          // 2. Get the most recent period start date
+          const history = await Cycle.find({ userId }).sort({ startDate: -1 }).limit(6); 
+          const lastCycle = history[0];
 
-  // 3. Calculate current status on-the-fly
-  const prediction = calculateCycleData(
-    lastCycle.startDate, 
-    user.avgCycleLength, 
-    user.avgPeriodLength
-  );
+          if (!lastCycle) return res.status(404).json({ message: "No data found" }); 
 
-  // 4. Determine current phase based on TODAY's date
-  const today = new Date();
-  let currentPhase = "Luteal"; // Default
-  
-  if (today >= prediction.phases.menstrual.start && today <= prediction.phases.menstrual.end) currentPhase = "Menstrual";
-  else if (today <= prediction.phases.follicular.end) currentPhase = "Follicular";
-  else if (today <= prediction.phases.ovulation.end) currentPhase = "Ovulation";
+          // 3. Calculate current status on-the-fly
+          const prediction = calculateCycleData(
+            format(lastCycle.startDate, 'yyyy-MM-dd'), 
+            user.avgCycleLength, 
+            user.avgPeriodLength
+          );
+      
+          // 4. Determine current phase based on TODAY's date
+          const today = format(new Date(), 'yyyy-MM-dd');
 
-  const fullCycleData = history.map(c => ({
-        month: c.startDate.toLocaleString("en-US", { month: "long" }).toUpperCase(),
-        startDate: c.startDate.toLocaleDateString(),
-        cycleLength: user.avgCycleLength // or calculate actual if you have endDate
-    })); 
+          const menstrualStart = format(prediction.phases.menstrual.start, 'yyyy-MM-dd');
+          const menstrualEnd = format(prediction.phases.menstrual.end, 'yyyy-MM-dd');
+          const follicularEnd = format(prediction.phases.follicular.end, 'yyyy-MM-dd');
+          const ovulationEnd = format(prediction.phases.ovulation.end, 'yyyy-MM-dd');
+      
+          let currentPhase = "Luteal";
+        if (today >= menstrualStart && today <= menstrualEnd) {
+            currentPhase = "Menstrual";
+        } else if (today <= follicularEnd) {
+            currentPhase = "Follicular";
+        } else if (today <= ovulationEnd) {
+            currentPhase = "Ovulation";
+        }
+      
+          const fullCycleData = history.map(c => ({
+                month: c.startDate.toLocaleString("en-US", { month: "long" }).toUpperCase(),
+                startDate: c.startDate.toLocaleDateString(),
+                cycleLength: user.avgCycleLength // or calculate actual if you have endDate
+            })); 
+            
+            res.json({
+            currentPhase,
+            nextPeriodIn: differenceInDays((prediction.nextPeriodDate), today),
+            prediction,
+            fullCycleData
+          });
+    } catch(error) {
+        console.log("Error ", error);
+        return res.status(500).json({message: "Internal Server Error"});
+    }
 
-  res.json({
-    currentPhase, 
-    nextPeriodIn: differenceInDays(prediction.nextPeriodDate, today),
-    prediction,
-    fullCycleData
-  });
 };
 
 const logActualPeriod = async (req, res) => {
@@ -168,7 +184,7 @@ const logActualPeriod = async (req, res) => {
     }
 };
 
-const getUserProfile = async (req, res) => {
+const getUserProfile = async (req, res) => { 
     try {
         console.log('Here');
         const user = await User.findById(req.user.id).select('-password');

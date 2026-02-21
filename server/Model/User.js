@@ -8,4 +8,4 @@ const userSchema = mongoose.Schema({
   avgPeriodLength: { type: Number, default: 5 }  
 }, {timestamps: true});
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model('User', userSchema); 

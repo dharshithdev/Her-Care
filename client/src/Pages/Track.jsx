@@ -78,7 +78,7 @@ const TrackPage = () => {
     };
 
     useEffect(() => {
-        if (scrollRef.current) {
+        if (scrollRef.current) { 
             const scrollTo = scrollRef.current.children[7]?.offsetLeft - 150;
             scrollRef.current.scrollLeft = scrollTo;
         }
@@ -109,7 +109,7 @@ const TrackPage = () => {
         for (let i = 5; i >= 0; i--) {
             const monthDate = subMonths(today, i);
             const monthName = format(monthDate, 'MMMM').toUpperCase();
-            const existing = history.find(h => h.month === monthName);
+            const existing = history.find(h => h.month === monthName); 
             padded.push(existing || { month: monthName, cycleLength: 0, startDate: 'No Data' });
         }
         return padded;
@@ -122,8 +122,8 @@ const TrackPage = () => {
     const currentPhaseIndex = phaseOrder.indexOf(currentPhase);
 
     const phasesUI = [
-        { name: "Menstrual", total: 5, value: currentPhaseIndex > 0 ? 5 : (currentPhase === "Menstrual" ? differenceInDays(today, new Date(prediction.phases.menstrual.start)) + 1 : 0) },
-        { name: "Follicular", total: 10, value: currentPhaseIndex > 1 ? 10 : (currentPhase === "Follicular" ? differenceInDays(today, new Date(prediction.phases.follicular.start)) + 1 : 0) },
+        { name: "Menstrual", total: prediction.phases.menstrual.total, value: currentPhaseIndex > 0 ? prediction.phases.menstrual.total : (currentPhase === "Menstrual" ? differenceInDays(today, new Date(prediction.phases.menstrual.start)) + 1 : 0) },
+        { name: "Follicular", total: prediction.phases.follicular.total, value: currentPhaseIndex > 1 ? prediction.phases.follicular.total : (currentPhase === "Follicular" ? differenceInDays(today, new Date(prediction.phases.follicular.start)) + 1 : 0) },
         { name: "Ovulation", total: 1, value: currentPhaseIndex > 2 ? 1 : (currentPhase === "Ovulation" ? 1 : 0) },
         { name: "Luteal", total: 14, value: currentPhase === "Luteal" ? differenceInDays(today, new Date(prediction.phases.luteal.start)) + 1 : 0 },
     ];
@@ -233,8 +233,12 @@ const TrackPage = () => {
                     <div className="mt-8 lg:mt-16 flex flex-col xl:flex-row items-stretch gap-6 lg:gap-8">
                         <div className="bg-gradient-to-br from-rose-500 to-rose-600 text-white p-6 lg:p-8 rounded-[2rem] shadow-xl xl:w-1/3 flex flex-col justify-center items-center">
                             <span className="text-[10px] lg:text-xs font-bold uppercase tracking-[0.3em] opacity-80 mb-2">Next Milestone</span>
-                            <p className="text-xl lg:text-2xl font-black">Period in {nextPeriodIn} Days</p> 
-                        </div>
+                        <p className="text-xl lg:text-2xl font-black">
+                            {nextPeriodIn === 0 
+                                ? "Period Starts Today!" 
+                                : nextPeriodIn < 0 ? "Late Period..." : `Period in ${nextPeriodIn} ${nextPeriodIn === 1 ? 'day' : 'days'}`
+                            }
+                        </p>                        </div>
                         <div className="flex-1 bg-slate-50 rounded-[2rem] p-4 border border-slate-100 overflow-x-auto">
                             <table className="w-full min-w-[300px] lg:min-w-0">
                                 <tbody className="text-xs lg:text-sm">
