@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FiInfo, FiTrendingUp, FiCheckCircle, FiCalendar } from 'react-icons/fi';
 import api from '../Utils/axiosConfig';
+import { useNavigate } from 'react-router-dom';
 import MainHeader from '../Components/MainHeader';
 import Footer from '../Components/Footer';
 import { format, parseISO, addDays, isSameDay } from 'date-fns';
@@ -9,7 +10,7 @@ import { format, parseISO, addDays, isSameDay } from 'date-fns';
 const PregnancyPage = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -33,7 +34,15 @@ const PregnancyPage = () => {
   const { prediction, currentPhase, avgCycleLength } = data;
   const fertileStartDate = parseISO(prediction.fertileWindow.start);
   const ovulationDate = parseISO(prediction.phases.ovulation.start);
-  const isFertile = currentPhase === "Follicular" || currentPhase === "Ovulation";
+  // Calculate the difference in days between today and ovulation
+  const today = new Date();
+  const daysUntilOvulation = Math.ceil((ovulationDate - today) / (1000 * 60 * 60 * 24));
+
+  // A woman is fertile 5 days before ovulation + the day of ovulation itself
+  const isFertile = daysUntilOvulation >= 0 && daysUntilOvulation <= 5;
+  /*  
+    highFertile = sunDays(format(prediction.phases.ovulation.start, 5)'yyyy-MM-dd')
+  */
 
   const fertileDates = Array.from({ length: 6 }, (_, i) => addDays(fertileStartDate, i));
 
@@ -163,7 +172,10 @@ const PregnancyPage = () => {
               </div>
             </div>
 
-            <button className="w-full bg-gray-900 text-white py-5 rounded-[2rem] font-bold text-sm transition-all shadow-lg hover:bg-black hover:shadow-xl hover:-translate-y-1 active:scale-95">
+            <button 
+              onClick={() => navigate('/pregencymode')}
+              className="w-full bg-gray-900 text-white py-5 rounded-[2rem] font-bold text-sm transition-all shadow-lg hover:bg-black hover:shadow-xl hover:-translate-y-1 active:scale-95"
+            >
               Switch to Pregnancy Mode
             </button>
           </div>
@@ -181,7 +193,10 @@ const PregnancyPage = () => {
                 ))}
               </div>
             </div>
-            <button className="w-full bg-gray-900 text-white py-5 rounded-[2rem] font-bold text-sm transition-all shadow-lg hover:bg-black hover:shadow-xl active:scale-95">
+            <button 
+              onClick={() => navigate('/pregencymode')}
+              className="w-full bg-gray-900 text-white py-5 rounded-[2rem] font-bold text-sm transition-all shadow-lg hover:bg-black hover:shadow-xl hover:-translate-y-1 active:scale-95"
+            >
               Switch to Pregnancy Mode
             </button>
           </div>

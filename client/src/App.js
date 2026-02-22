@@ -14,7 +14,7 @@ import CartPage from './Pages/Cart';
 import Account from './Pages/Account';
 import Luna from './Pages/Luna';
 import PregencyPage from './Pages/Pregency';
-
+import PregnancyMode from './Pages/PregencyMode';
 function App() {
   return (
       <Routes>
@@ -33,6 +33,7 @@ function App() {
         <Route path="/account" element={<Account />} />
         <Route path="/luna" element={<Luna />} />
         <Route path="/pregency" element={<PregencyPage />} />
+        <Route path="/pregencymode" element={<PregnancyMode />} />
       </Routes>
   );
 }
