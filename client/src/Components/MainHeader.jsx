@@ -33,6 +33,7 @@ const MainHeader = () => {
         { name: 'Track', path: '/track' },
         { name: 'Explore', path: '/explore' },
         { name: 'Daily', path: '/daily' },
+        { name: 'Pregnency', path: '/pregency' },
         { name: 'Account', path: '/account' },
     ];
 

@@ -128,8 +128,9 @@ const getTrackingData = async (req, res) => {
             res.json({
             currentPhase,
             nextPeriodIn: differenceInDays((prediction.nextPeriodDate), today),
-            prediction,
-            fullCycleData
+            prediction, 
+            fullCycleData,
+            avgCycleLength : user.avgCycleLength
           });
     } catch(error) {
         console.log("Error ", error);

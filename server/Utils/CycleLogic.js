@@ -42,7 +42,7 @@ const calculateCycleData = (lastPeriodDate, avgCycle = 28, avgPeriod = null) => 
       end: ovulationDate 
     }
   };
-};
+}; 
 
 const findMenstrualLength = (avgCycle) => {
   let menstrualDays;
