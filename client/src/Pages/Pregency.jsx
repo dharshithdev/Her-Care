@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { FiInfo, FiTrendingUp, FiCheckCircle, FiCalendar } from 'react-icons/fi';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FiInfo, FiTrendingUp, FiCheckCircle, FiCalendar, FiHeart, FiX } from 'react-icons/fi';
 import api from '../Utils/axiosConfig';
 import { useNavigate } from 'react-router-dom';
 import MainHeader from '../Components/MainHeader';
@@ -10,12 +10,27 @@ import { format, parseISO, addDays, isSameDay } from 'date-fns';
 const PregnancyPage = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isSwitching, setIsSwitching] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const navigate = useNavigate();
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await api.get(`${process.env.REACT_APP_API_URL}/api/track/data`, {
+        
+        // 1. Check if user is already pregnant
+        const statusRes = await api.get(`${process.env.REACT_APP_API_URL}/api/track/pregency/data`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (statusRes.data && statusRes.data.isPregnant) {
+          navigate('/pregencymode'); // Automatic redirect
+          return;
+        }
+
+        // 2. Fetch standard cycle data
+        const res = await api.get(`${process.env.REACT_APP_API_URL}/api/track/data`, { 
           headers: { Authorization: `Bearer ${token}` }
         });
         setData(res.data);
@@ -26,29 +41,81 @@ const PregnancyPage = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [navigate]);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-white">Loading...</div>;
+  const handleSwitchMode = async () => {
+    setIsSwitching(true);
+    try {
+      const token = localStorage.getItem('token');
+      await api.post(`${process.env.REACT_APP_API_URL}/api/track/addpregnant`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      navigate('/track');
+    } catch (err) {
+      console.error("Error switching to pregnancy mode", err);
+      alert(err.response?.data?.message || "Failed to switch to pregnancy mode. Please try again.");
+    } finally {
+      setIsSwitching(false);
+      setShowConfirmModal(false);
+    }
+  };
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-white font-bold text-gray-400">Loading...</div>;
   if (!data) return <div className="min-h-screen flex items-center justify-center bg-white">No data available.</div>;
 
   const { prediction, currentPhase, avgCycleLength } = data;
   const fertileStartDate = parseISO(prediction.fertileWindow.start);
   const ovulationDate = parseISO(prediction.phases.ovulation.start);
-  // Calculate the difference in days between today and ovulation
   const today = new Date();
   const daysUntilOvulation = Math.ceil((ovulationDate - today) / (1000 * 60 * 60 * 24));
-
-  // A woman is fertile 5 days before ovulation + the day of ovulation itself
   const isFertile = daysUntilOvulation >= 0 && daysUntilOvulation <= 5;
-  /*  
-    highFertile = sunDays(format(prediction.phases.ovulation.start, 5)'yyyy-MM-dd')
-  */
-
   const fertileDates = Array.from({ length: 6 }, (_, i) => addDays(fertileStartDate, i));
 
   return (
-    <div className="min-h-screen bg-[#fcfcfd] flex flex-col">
+    <div className="min-h-screen bg-[#fcfcfd] flex flex-col relative">
       <MainHeader />
+
+      {/* CONFIRMATION MODAL */}
+      <AnimatePresence>
+        {showConfirmModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowConfirmModal(false)}
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-[2.5rem] p-8 max-w-sm w-full relative z-10 shadow-2xl text-center"
+            >
+              <div className="w-16 h-16 bg-pink-100 text-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FiHeart size={30} fill="currentColor" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Switch to Pregnancy?</h3>
+              <p className="text-gray-500 text-sm mb-8">This will pause your current cycle predictions and start your baby tracking journey.</p>
+              <div className="flex flex-col gap-3">
+                <button 
+                  onClick={handleSwitchMode}
+                  disabled={isSwitching}
+                  className="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold hover:bg-black transition-all"
+                >
+                  {isSwitching ? 'Updating...' : 'Yes, I am pregnant'}
+                </button>
+                <button 
+                  onClick={() => setShowConfirmModal(false)}
+                  className="w-full bg-gray-100 text-gray-500 py-4 rounded-2xl font-bold hover:bg-gray-200 transition-all"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <main className="flex-grow pt-32 pb-12 px-4 max-w-5xl mx-auto w-full">
         
@@ -59,10 +126,7 @@ const PregnancyPage = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
-          {/* LEFT COLUMN */}
           <div className="lg:col-span-2 space-y-6 flex flex-col">
-            
-            {/* Fertile Window Row */}
             <section className="bg-white rounded-[2rem] p-5 shadow-sm border border-gray-100 order-1">
               <div className="flex justify-between items-center mb-4 px-2">
                 <h3 className="text-gray-800 font-bold text-sm flex items-center gap-2">
@@ -92,7 +156,6 @@ const PregnancyPage = () => {
               </div>
             </section>
 
-            {/* Conception Odds Graph */}
             <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 order-2">
               <h3 className="text-gray-800 font-bold text-sm mb-4 flex items-center gap-2">
                 <FiTrendingUp className="text-indigo-500" /> Conception Probability Curve
@@ -116,21 +179,19 @@ const PregnancyPage = () => {
               </div>
             </div>
 
-            {/* Current Status Card (Mobile Only) */}
             <div className="lg:hidden order-3 mt-2">
                <div className="bg-indigo-600 rounded-[2rem] p-6 text-white shadow-lg relative overflow-hidden">
                   <div className="relative z-10">
                      <h3 className="text-indigo-100 text-[10px] font-bold uppercase tracking-widest mb-1">Current Status</h3>
                      <div className="text-3xl font-black mb-1">{isFertile ? 'HIGH' : 'LOW'}</div>
                      <p className="text-indigo-200 text-[10px]">
-                       Chances of conceiving today based on your <span className="text-white font-bold">{currentPhase}</span> phase.
+                        Chances of conceiving today based on your <span className="text-white font-bold">{currentPhase}</span> phase.
                      </p>
                   </div>
                   <div className="absolute -bottom-2 -right-2 text-white/10 text-6xl font-black italic">!</div>
                </div>
             </div>
 
-            {/* Info Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 order-4 mt-4 lg:mt-0">
               <div className="bg-pink-50 p-4 md:p-5 rounded-2xl border border-pink-100">
                 <h4 className="text-pink-700 font-bold text-[13px] md:text-sm mb-2">Getting Pregnant</h4>
@@ -147,7 +208,6 @@ const PregnancyPage = () => {
             </div>
           </div>
 
-          {/* RIGHT COLUMN (Desktop Only) */}
           <div className="space-y-6 hidden lg:block">
             <div className="bg-indigo-600 rounded-[2rem] p-8 text-white shadow-xl shadow-indigo-100 relative overflow-hidden">
                <div className="relative z-10">
@@ -173,14 +233,13 @@ const PregnancyPage = () => {
             </div>
 
             <button 
-              onClick={() => navigate('/pregencymode')}
-              className="w-full bg-gray-900 text-white py-5 rounded-[2rem] font-bold text-sm transition-all shadow-lg hover:bg-black hover:shadow-xl hover:-translate-y-1 active:scale-95"
+              onClick={() => setShowConfirmModal(true)}
+              className="w-full text-white py-5 rounded-[2rem] font-bold text-sm transition-all shadow-lg bg-gray-900 hover:bg-black hover:shadow-xl hover:-translate-y-1 active:scale-95"
             >
               Switch to Pregnancy Mode
             </button>
           </div>
 
-          {/* Mobile Signals & Button */}
           <div className="lg:hidden space-y-4">
             <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100">
               <h3 className="text-gray-800 font-bold text-sm mb-4 text-left italic">Fertility Signals</h3>
@@ -194,7 +253,7 @@ const PregnancyPage = () => {
               </div>
             </div>
             <button 
-              onClick={() => navigate('/pregencymode')}
+              onClick={() => setShowConfirmModal(true)}
               className="w-full bg-gray-900 text-white py-5 rounded-[2rem] font-bold text-sm transition-all shadow-lg hover:bg-black hover:shadow-xl hover:-translate-y-1 active:scale-95"
             >
               Switch to Pregnancy Mode
@@ -202,7 +261,6 @@ const PregnancyPage = () => {
           </div>
         </div>
 
-        {/* Info Box */}
         <div className="flex gap-2 p-4 bg-gray-100 rounded-2xl mt-8 clear-both relative z-0">
           <FiInfo className="text-gray-400 mt-0.5 flex-shrink-0" />
           <p className="text-[11px] text-gray-500 leading-normal">

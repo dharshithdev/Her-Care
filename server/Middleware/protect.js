@@ -13,7 +13,6 @@ const protect = async (req, res, next) => {
             if (!user) {
                 return res.status(401).json({ message: 'User no longer exists' });
             }
-
             req.user = user;
             next();
         } catch (error) { 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FiMenu, FiX, FiLogOut } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
 
 const MainHeader = () => {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -9,13 +10,42 @@ const MainHeader = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    // Handle Logout
+    const [isPregnant, setIsPregnant] = useState(() => {
+        return localStorage.getItem('isPregnant') === 'true';
+    });
+    // Fetch the pregnancy status from the API
+    useEffect(() => {
+        const checkStatus = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) return;
+                
+                const { data } = await axios.get('http://localhost:5000/api/track/pregency/data', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const status = !!data.isPregnant;
+                setIsPregnant(status);
+                // Update localStorage so the NEXT page load is instant
+                localStorage.setItem('isPregnant', status);
+            } catch (err) {
+                console.log("Header status check failed");
+            }
+        };
+        checkStatus();
+    }, [location.pathname]);
+
+    // Color Theme Logic (Lavender for Pregnancy, Rose for Cycle)
+    const accentClass = isPregnant ? 'text-violet-500' : 'text-rose-500';
+    const bgClass = isPregnant ? 'bg-violet-500' : 'bg-rose-500';
+    const bgLightClass = isPregnant ? 'bg-violet-50' : 'bg-rose-50';
+    const hoverShadow = isPregnant ? 'hover:shadow-violet-200' : 'hover:shadow-rose-200';
+
     const handleLogout = () => {
-        localStorage.removeItem('token'); 
+        localStorage.removeItem('token');
+        localStorage.removeItem('isPregnant');
         navigate('/home');
     };
 
-    // Change background opacity on scroll
     useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 20);
@@ -33,7 +63,7 @@ const MainHeader = () => {
         { name: 'Track', path: '/track' },
         { name: 'Explore', path: '/explore' },
         { name: 'Daily', path: '/daily' },
-        { name: 'Pregnency', path: '/pregency' },
+        { name: isPregnant ? 'My Baby' : 'Pregnancy', path: '/pregency' },
         { name: 'Account', path: '/account' },
     ];
 
@@ -51,17 +81,17 @@ const MainHeader = () => {
                     }
                 `}>
                     
-                    {/* Brand Logo */}
+                    {/* Brand Logo - Dynamic Theme */}
                     <Link to="/" className="flex items-center gap-2 group relative z-[110]">
-                        <div className="w-8 h-8 bg-rose-500 rounded-lg flex items-center justify-center rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                        <div className={`w-8 h-8 ${bgClass} rounded-lg flex items-center justify-center rotate-3 group-hover:rotate-0 transition-all duration-500`}>
                             <span className="text-white font-black text-sm">H</span>
                         </div>
                         <h1 className="text-lg md:text-xl font-black text-slate-900 tracking-tighter">
-                            Her-Care<span className="text-rose-500">.</span>
+                            Her-Care<span className={`${accentClass} transition-colors duration-500`}>.</span>
                         </h1>
                     </Link>
 
-                    {/* Desktop Navigation Links - ABSOLUTELY UNTOUCHED */}
+                    {/* Desktop Navigation Links */}
                     <nav className="hidden md:block">
                         <ul className="flex items-center gap-2">
                             {navLinks.map((link) => {
@@ -72,14 +102,14 @@ const MainHeader = () => {
                                             to={link.path}
                                             className={`relative px-5 py-2 text-sm font-bold tracking-tight transition-all duration-300 rounded-xl
                                                 ${isActive 
-                                                    ? 'text-rose-500 bg-rose-50' 
+                                                    ? `${accentClass} ${bgLightClass}` 
                                                     : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                                                 }
                                             `}
                                         >
                                             {link.name}
                                             {isActive && (
-                                                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-rose-500 rounded-full" />
+                                                <span className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 ${bgClass} rounded-full transition-colors duration-500`} />
                                             )}
                                         </Link>
                                     </li>
@@ -92,21 +122,20 @@ const MainHeader = () => {
                     <div className="flex items-center gap-2 md:gap-4 relative z-[110]">
                         <button 
                             onClick={handleLogout}
-                            className="hidden md:flex bg-slate-900 text-white px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-rose-500 hover:shadow-lg hover:shadow-rose-200 transition-all active:scale-95 items-center gap-2"
+                            className={`hidden md:flex bg-slate-900 text-white px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest hover:scale-105 hover:shadow-lg ${hoverShadow} transition-all active:scale-95 items-center gap-2`}
                         >
                             Log Out
                         </button>
 
-                        {/* Mobile Menu Toggle */}
                         <button 
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 text-slate-900 hover:bg-rose-50 transition-colors"
+                            className={`md:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 text-slate-900 hover:${bgLightClass} transition-colors`}
                         >
                             {isMobileMenuOpen ? <FiX size={20} /> : <FiMenu size={20} />}
                         </button>
                     </div>
 
-                    {/* NEW: Small Compact Mobile Menu (Dropdown Style) */}
+                    {/* Mobile Menu Dropdown */}
                     <AnimatePresence>
                         {isMobileMenuOpen && (
                             <motion.div 
@@ -123,7 +152,7 @@ const MainHeader = () => {
                                                 <Link
                                                     to={link.path}
                                                     className={`flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all
-                                                        ${isActive ? 'bg-rose-500 text-white' : 'text-slate-600 hover:bg-slate-50'}
+                                                        ${isActive ? `${bgClass} text-white` : 'text-slate-600 hover:bg-slate-50'}
                                                     `}
                                                 >
                                                     {link.name}
@@ -147,7 +176,7 @@ const MainHeader = () => {
                 </div>
             </header>
             
-            {/* Background overlay - Invisible on laptop */}
+            {/* Background overlay - Logic from your original header */}
             <AnimatePresence>
                 {isMobileMenuOpen && (
                     <motion.div 

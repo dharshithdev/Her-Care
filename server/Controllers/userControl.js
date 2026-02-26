@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Order = require('../Model/Order');
 const Appointment = require('../Model/Appointment');
+const Pregnant = require('../Model/Pregnant');
 const {calculateCycleData, findMenstrualLength} = require('../Utils/CycleLogic');
 const { differenceInDays, startOfDay, format } = require('date-fns'); 
 require("dotenv").config()
@@ -59,7 +60,7 @@ const userLogIn = async (req, res) => {
 
         if(!email || !password) {
             return res.status(400).json({status: false, message: "Please enter all the feilds"});
-        }
+        } 
 
         const gotUser = await User.findOne({email});
 
@@ -124,13 +125,13 @@ const getTrackingData = async (req, res) => {
                 startDate: c.startDate.toLocaleDateString(),
                 cycleLength: user.avgCycleLength // or calculate actual if you have endDate
             })); 
-            
             res.json({
             currentPhase,
             nextPeriodIn: differenceInDays((prediction.nextPeriodDate), today),
             prediction, 
             fullCycleData,
-            avgCycleLength : user.avgCycleLength
+            avgCycleLength : user.avgCycleLength,
+            pregnant: user.pregnant
           });
     } catch(error) {
         console.log("Error ", error);
@@ -215,6 +216,84 @@ const getUserAppointments = async (req, res) => {
     }
 };
 
+const startPregnancy = async (req, res) => {
+try {
+        const userId = req.user.id;
+        const user = await User.findById(userId);
+        
+        // 1. Get the most recent cycle start
+        const latestCycle = await Cycle.findOne({ userId, isPredicted: false })
+            .sort({ startDate: -1 });
+
+        if (!latestCycle) return res.status(400).json({ message: "No cycle data." });
+
+        const lmpDate = latestCycle.startDate;
+
+        // CycleLength - 14
+        const cycleLength = user.avgCycleLength || 28; 
+        const daysToOvulation = cycleLength - 14;
+
+        const conceptionDate = new Date(lmpDate);
+        conceptionDate.setDate(conceptionDate.getDate() + daysToOvulation);
+
+        // but some doctors adjust for long cycles: (LMP + 280) + (cycleLength - 28)
+        const dueDate = new Date(lmpDate);
+        const adjustment = cycleLength - 28;
+        dueDate.setDate(dueDate.getDate() + 280 + adjustment);
+
+        const newPregnancy = new Pregnant({
+            userId,
+            lmpDate,
+            dueDate,
+            conceptionDate,
+            status: 'active'
+        });
+
+        await newPregnancy.save();
+        await User.findByIdAndUpdate(userId, { pregnant: true });
+
+        res.status(201).json({ message: "Success", data: newPregnancy });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+const getPregencyTrackingData = async(req, res) => {
+    try {
+        const userId = req.user.id;
+        const user = await User.findById(userId);
+
+        if(!user.pregnant) {
+            return res.status(200).json({ isPregnant: false });
+        }
+
+        const pregnantDetails = await Pregnant.findOne({ userId }).sort({ lmpDate: -1 });
+
+        if (!pregnantDetails) {
+            return res.status(404).json({ message: "No pregnancy record found." });
+        }
+
+        // We wrap the data to match the "prediction" prop shape in your PregnancyView
+        return res.status(200).json({
+            isPregnant: true, 
+            prediction: {
+                phases: {
+                    menstrual: { start: pregnantDetails.lmpDate }
+                },
+                fertileWindow: {
+                    // Logic: Conception usually happens in a 5-day window
+                    start: new Date(new Date(pregnantDetails.conceptionDate).setDate(pregnantDetails.conceptionDate.getDate() - 3)),
+                    end: new Date(new Date(pregnantDetails.conceptionDate).setDate(pregnantDetails.conceptionDate.getDate() + 1))
+                },
+                dueDate: pregnantDetails.dueDate
+            }
+        });
+    } catch(error) {
+        console.log('Error : ', error.message);
+        return res.status(500).json({ message: "Internal server error!" });
+    }
+}
+
 module.exports = {registerUser, userLogIn, getTrackingData, logActualPeriod, getUserProfile, getUserOrders,
-                getUserAppointments
+                getUserAppointments, startPregnancy, getPregencyTrackingData
 };
