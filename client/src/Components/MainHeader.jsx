@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FiMenu, FiX, FiLogOut } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
+import api from '../Utils/axiosConfig';
 
 const MainHeader = () => {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -20,7 +20,7 @@ const MainHeader = () => {
                 const token = localStorage.getItem('token');
                 if (!token) return;
                 
-                const { data } = await axios.get('http://localhost:5000/api/track/pregency/data', {
+                const { data } = await api.get(`${process.env.REACT_APP_API_URL}/api/track/pregency/data`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 const status = !!data.isPregnant;
