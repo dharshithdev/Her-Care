@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiAlertTriangle, FiFileText, FiArrowLeft, FiShield, FiInfo, FiExternalLink } from 'react-icons/fi';
+import { FiShield, FiInfo, FiArrowLeft, FiHeart, FiActivity, FiAlertCircle } from 'react-icons/fi';
 
 const Terms = () => {
     const navigate = useNavigate();
@@ -16,90 +16,91 @@ const Terms = () => {
                     >
                         <FiArrowLeft size={24} className="text-slate-600" />
                     </button>
-                    <h1 className="text-xl font-black text-slate-900 tracking-tight">Terms of Service</h1>
+                    <h1 className="text-xl font-black text-slate-900 tracking-tight">Terms of Use</h1>
                     <div className="w-10"></div>
                 </div>
             </header>
 
-            <main className="max-w-3xl mx-auto px-6 pt-10 space-y-8">
+            <main className="max-w-3xl mx-auto px-6 pt-10 space-y-10">
                 
-                {/* CRITICAL MEDICAL DISCLAIMER - RED THEME */}
-                <section className="bg-rose-50 border-2 border-rose-200 p-6 md:p-8 rounded-[2.5rem] space-y-4">
-                    <div className="flex items-center gap-3 text-rose-600">
-                        <FiAlertTriangle size={28} strokeWidth={3} />
-                        <h2 className="text-xl font-black uppercase tracking-tight">Medical Disclaimer</h2>
+                {/* THE "BIOLOGICAL REALITY" SECTION - This is your main legal shield */}
+                <section className="bg-white p-8 md:p-12 rounded-[3rem] shadow-sm border border-slate-100 space-y-6 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-8 opacity-5 text-violet-600">
+                        <FiActivity size={120} />
                     </div>
-                    <div className="space-y-3 text-rose-900/80 font-bold text-sm md:text-base leading-relaxed">
+
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-violet-50 text-violet-600 rounded-full text-[10px] font-black uppercase tracking-widest">
+                        <FiHeart className="fill-violet-600" size={12} /> Your Health, Our Priority
+                    </div>
+
+                    <h2 className="text-3xl font-black text-slate-900 leading-tight">
+                        Our Data <span className="text-pink-500">& Your Body</span>
+                    </h2>
+
+                    <div className="space-y-4 text-slate-500 font-medium leading-relaxed">
                         <p>
-                            OUR APP IS AN INFORMATIONAL TOOL, NOT A MEDICAL DEVICE. The predictions provided (including period dates, fertile windows, and ovulation) are based on statistical averages and user input. 
+                            Her-Care is designed to help you understand the beautiful complexity of your cycle. Our algorithms analyze your inputs to provide personalized insights into your period and ovulation patterns.
                         </p>
-                        <p className="bg-white/50 p-4 rounded-2xl border border-rose-100">
-                            <span className="text-rose-600 underline">WARNING:</span> DO NOT use this app as a form of contraception or to prevent pregnancy. We do not guarantee 100% accuracy. If you are avoiding pregnancy, use a medically approved contraceptive method.
+                        
+                        <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 text-slate-700 italic">
+                            "Because every body is unique, biological timing can be influenced by stress, lifestyle, and health changes. As such, all dates provided by the app are **estimates intended for educational and tracking purposes only.**"
+                        </div>
+
+                        <p className="text-sm">
+                            While we strive for precision, Her-Care should <span className="text-slate-900 font-bold">not be used as a primary form of contraception or to prevent pregnancy.</span> To ensure your safety, always use effective contraceptive methods alongside the app's insights. Our data is a supportive guide, not a substitute for medically approved birth control or professional clinical advice.
                         </p>
                     </div>
                 </section>
 
-                {/* Main Terms Content */}
-                <div className="space-y-8 text-slate-600 px-2">
-                    
+                {/* Core Terms */}
+                <div className="grid gap-8 px-2">
                     <section className="space-y-3">
-                        <h3 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-                            <FiInfo className="text-violet-500" /> 1. Acceptance of Terms
+                        <h3 className="text-xl font-black text-slate-900 flex items-center gap-3">
+                            <div className="w-10 h-10 bg-violet-100 rounded-xl flex items-center justify-center text-violet-600">
+                                <FiShield size={20} />
+                            </div>
+                            1. Accuracy Disclaimer
                         </h3>
-                        <p className="leading-relaxed">
-                            By creating an account or using this platform, you agree to be bound by these terms. If you do not agree, please discontinue use immediately. You must be at least 13 years old (or the digital age of consent in your country) to use this service.
+                        <p className="text-slate-500 leading-relaxed text-sm md:text-base">
+                            The accuracy of Her-Care's predictions depends on the data you log. We do not guarantee that the App’s predictions will be 100% accurate at all times. Use of the App constitutes your acknowledgment that biological cycles are variable and that reliance on any information provided is at your own discretion.
                         </p>
                     </section>
 
                     <section className="space-y-3">
-                        <h3 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-                            <FiShield className="text-violet-500" /> 2. Accuracy of Data
+                        <h3 className="text-xl font-black text-slate-900 flex items-center gap-3">
+                            <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600">
+                                <FiInfo size={20} />
+                            </div>
+                            2. Professional Consultation
                         </h3>
-                        <p className="leading-relaxed">
-                            Biological cycles are highly irregular and influenced by stress, diet, exercise, and health conditions. Our algorithms provide **estimates only**. We are not liable for any consequences—including unplanned pregnancy or health complications—resulting from reliance on our predictions.
+                        <p className="text-slate-500 leading-relaxed text-sm md:text-base">
+                            Her-Care is not a medical device. Always consult with a qualified healthcare professional or OB-GYN for family planning, medical diagnosis, or treatment. Never disregard professional medical advice based on information found within this platform.
                         </p>
                     </section>
 
-                    <section className="space-y-3">
-                        <h3 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-                            <FiFileText className="text-violet-500" /> 3. User Responsibility
-                        </h3>
-                        <p className="leading-relaxed">
-                            You are responsible for the accuracy of the data you enter. Logging incorrect dates or symptoms will result in inaccurate predictions. You are also responsible for maintaining the security of your login credentials.
-                        </p>
-                    </section>
-
-                    <section className="space-y-3">
-                        <h3 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-                            <FiExternalLink className="text-violet-500" /> 4. External Advice
-                        </h3>
-                        <p className="leading-relaxed">
-                            Always consult with a qualified healthcare professional (OB-GYN) for medical advice, diagnosis, or treatment. Never disregard professional medical advice because of something you have read on this app.
-                        </p>
-                    </section>
-
-                    {/* Liability Block */}
-                    <section className="bg-slate-900 text-white p-8 rounded-[3rem] space-y-4">
-                        <h3 className="text-xl font-black">5. Limitation of Liability</h3>
-                        <p className="text-slate-400 text-sm leading-relaxed">
-                            TO THE MAXIMUM EXTENT PERMITTED BY LAW, HER-CARE SHALL NOT BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES RESULTING FROM THE USE OR INABILITY TO USE THE SERVICE. THIS INCLUDES, BUT IS NOT LIMITED TO, EMOTIONAL DISTRESS, COSTS OF UNPLANNED PREGNANCY, OR MEDICAL EXPENSES.
+                    {/* Liability Block - THE "ESCAPE FROM LAW" SECTION */}
+                    <section className="bg-slate-900 text-white p-8 md:p-10 rounded-[3rem] space-y-5">
+                        <div className="flex items-center gap-2 text-rose-400 font-black uppercase text-xs tracking-widest">
+                            <FiAlertCircle /> Legal Protection
+                        </div>
+                        <h3 className="text-xl font-black">Limitation of Liability</h3>
+                        <p className="text-slate-400 text-[11px] leading-relaxed uppercase tracking-wider">
+                            TO THE FULLEST EXTENT PERMITTED BY LAW, HER-CARE SHALL NOT BE LIABLE FOR ANY CONSEQUENTIAL OR INCIDENTAL OUTCOMES, INCLUDING UNPLANNED PREGNANCIES, EMOTIONAL DISTRESS, OR MEDICAL COSTS. BY USING THE APP, YOU ACCEPT FULL RESPONSIBILITY FOR YOUR REPRODUCTIVE HEALTH DECISIONS AND ACKNOWLEDGE THAT DATA ESTIMATES ARE NOT GUARANTEES.
                         </p>
                     </section>
                 </div>
 
-                {/* Footer Note */}
-                <footer className="pt-10 border-t border-slate-200 text-center">
-                    <p className="text-sm text-slate-400">
-                        By clicking "I Agree" or continuing to use the app, you acknowledge that you have read and understood these terms in their entirety.
+                {/* Action Footer */}
+                <footer className="pt-12 text-center space-y-6">
+                    <p className="text-xs text-slate-400 max-w-sm mx-auto font-medium">
+                        By continuing to use Her-Care, you confirm you have read and agreed to these terms.
                     </p>
-                    <div className="mt-6 flex justify-center gap-4">
-                        <button 
-                            onClick={() => navigate('/')}
-                            className="px-8 py-3 bg-pink-600 text-white font-black rounded-full shadow-lg shadow-violet-200 hover:scale-105 transition-transform"
-                        >
-                            I Understand
-                        </button>
-                    </div>
+                    <button 
+                        onClick={() => navigate('/')}
+                        className="px-12 py-4 bg-pink-600 text-white font-black rounded-full shadow-2xl shadow-violet-200 hover:scale-105 active:scale-95 transition-all"
+                    >
+                        I Accept These Terms
+                    </button>
                 </footer>
             </main>
         </div>
