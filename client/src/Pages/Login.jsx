@@ -90,7 +90,7 @@ const Login = () => {
               <div className={`mb-6 p-4 rounded-2xl flex items-center gap-3 text-sm font-bold animate-in fade-in slide-in-from-top-2 ${
                 formMessage.type === 'success' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
               }`}>
-                {formMessage.type === 'success' ? <FiCheck className="text-lg" /> : '!'}
+                {formMessage.type === 'success' ? <FiCheck className="text-lg" /> : ''}
                 {formMessage.text}
               </div>
             )}

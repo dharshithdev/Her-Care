@@ -142,7 +142,6 @@ const TrackPage = () => {
                 
                 {pregnant ? (
                     <PregnancyView 
-                        prediction={prediction} 
                         today={today} 
                         scrollerDates={scrollerDates} 
                         scrollRef={scrollRef} 

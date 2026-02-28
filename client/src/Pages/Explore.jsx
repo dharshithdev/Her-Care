@@ -1,25 +1,29 @@
-import React from "react";
+import {React, useState} from "react";
 import { useNavigate } from "react-router-dom";
 import { FiCalendar, FiUser, FiShoppingBag, FiCpu, FiArrowRight } from "react-icons/fi";
 import calander from "../Assets/calander.png";
 import doctor from "../Assets/doctor.png";
+import Pregnancy from '../Assets/pregnancy.png'
 import luna from "../Assets/luna.png";
 import shopping from "../Assets/shopping.png";
 import MainHeader from "../Components/MainHeader";
+import Footer from "../Components/Footer";
 
 const Explore = () => {
   const navigate = useNavigate();
-
+      const [isPregnant, setIsPregnant] = useState(() => {
+          return localStorage.getItem('isPregnant') === 'true';
+      });
   const handleCardClick = (path) => {
     navigate(path);
   };
 
   const services = [
     {
-      title: "Track Cycle",
+      title: isPregnant ? "Track Pregency" : "Track Cycle",
       desc: "Monitor your rhythm and health phases.",
       path: "/track",
-      img: calander,
+      img: isPregnant ? Pregnancy :  calander,
       color: "rose",
       icon: <FiCalendar />
     },
@@ -49,6 +53,9 @@ const Explore = () => {
     }
   ];
 
+  const colorShow = isPregnant ? "text-violet-500" : "text-rose-500"
+  const colorShow2 = isPregnant ? "bg-violet-500" : "bg-red-500"
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-800">
       <MainHeader />
@@ -61,10 +68,10 @@ const Explore = () => {
         
         {/* Hero Section: Centered on mobile, original left-align on lg */}
         <div className="mb-10 lg:mb-16 text-center lg:text-left">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 mb-4">
-            Welcome back.
-          </h1>
-          <p className="text-base lg:text-lg text-slate-500 font-medium max-w-md mx-auto lg:mx-0">
+              <h2 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter">
+                Welcome <span className={`${colorShow}`}>Back</span>
+              </h2>
+          <p className={`text-base lg:text-lg text-slate-500 font-medium max-w-md mx-auto lg:mx-0`}>
             Where would you like to start your wellness journey today?
           </p>
         </div>
@@ -104,7 +111,7 @@ const Explore = () => {
                 </p>
               </div>
 
-              <div className="relative z-10 w-full pt-4 border-t border-slate-50 flex items-center justify-center text-rose-500 font-bold text-[10px] lg:text-xs uppercase tracking-[0.2em] group-hover:gap-3 transition-all">
+              <div className={`relative z-10 w-full pt-4 border-t border-slate-50 flex items-center justify-center ${colorShow} font-bold text-[10px] lg:text-xs uppercase tracking-[0.2em] group-hover:gap-3 transition-all`}>
                 Explore <FiArrowRight className="ml-2" />
               </div>
             </div>
@@ -122,7 +129,7 @@ const Explore = () => {
               We use medical-grade encryption to ensure your personal journey stays private and secure.
             </p>
           </div>
-          <button className="relative z-10 w-full lg:w-auto bg-rose-500 hover:bg-rose-600 text-white px-8 lg:px-10 py-4 lg:py-5 rounded-2xl font-bold transition-all shadow-lg shadow-rose-900/20 active:scale-95 text-sm lg:text-base">
+          <button className={`relative z-10 w-full lg:w-auto ${colorShow2} hover:bg-rose-600 text-white px-8 lg:px-10 py-4 lg:py-5 rounded-2xl font-bold transition-all shadow-lg shadow-rose-900/20 active:scale-95 text-sm lg:text-base`}>
             View Privacy Report
           </button>
           
@@ -130,6 +137,7 @@ const Explore = () => {
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] -ml-32 -mb-32" />
         </div>
       </main>
+      <Footer />
     </div>
   );
 };

@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
-import { FiActivity, FiCalendar, FiCompass, FiClock, FiTarget, FiHeart, FiTrendingUp, FiCheckCircle, FiEye, FiMusic, FiStar } from 'react-icons/fi';
+import { FiActivity, FiCalendar, FiCompass, FiClock, FiTarget, FiHeart, FiTrendingUp, FiCheckCircle, FiEye, FiMusic, FiStar, FiLoader } from 'react-icons/fi';
 import { GiRaspberry, GiBanana, GiPineapple, GiWatermelon, GiGrapes, GiLemon, GiPlantSeed } from 'react-icons/gi';
-import { format, addDays, isSameDay, differenceInDays } from 'date-fns';
+import { format, addDays, isSameDay, differenceInDays, parseISO } from 'date-fns';
+import api from '../Utils/axiosConfig';
 
 const useInView = () => {
     const [key, setKey] = useState(0);
@@ -26,13 +27,50 @@ const useInView = () => {
     return [ref, key];
 };
 
-const PregnancyView = ({ prediction, today, scrollerDates, scrollRef }) => {
+const PregnancyView = ({ today, scrollerDates, scrollRef }) => {
     const [heroRef, heroKey] = useInView();
     const [bentoRef, bentoKey] = useInView();
     const [chartRef, chartKey] = useInView();
     const [milestoneRef, milestoneKey] = useInView();
 
-    if (!prediction || !prediction.phases?.menstrual?.start) {
+    const [prediction, setPrediction] = useState(null);
+    const [loading, setLoading] = useState(true);
+    
+    // Create a ref specifically for the today element
+    const todayElementRef = useRef(null);
+
+    useEffect(() => {
+        const fetchPregnantData = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await api.get(`${process.env.REACT_APP_API_URL}/api/track/pregency/data`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (res.data && res.data.isPregnant) {
+                    setPrediction(res.data.prediction);
+                }
+            } catch (err) {
+                console.error("Error fetching specific pregnancy collection data", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchPregnantData();
+    }, []);
+
+useEffect(() => {
+    if (scrollRef.current && !loading) {
+        const timer = setTimeout(() => { 
+            if (scrollRef.current) {
+                const scrollTo = scrollRef.current.children[7]?.offsetLeft - 150;
+                scrollRef.current.scrollLeft = scrollTo;
+            }
+        }, 100);
+        return () => clearTimeout(timer);
+    }
+}, [loading]);
+
+    if (loading || !prediction || !prediction.phases?.menstrual?.start) {
         return (
             <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4">
                 <div className="w-12 h-12 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
@@ -69,7 +107,6 @@ const PregnancyView = ({ prediction, today, scrollerDates, scrollRef }) => {
     const babySize = getSizeComparison(currentWeek);
 
     const getCurrentMilestone = (week) => {
-        // ... (Keeping your switch logic, just updating icons/descriptions where needed)
         if (week < 5) return { title: "The Beginning", desc: "Implantation occurs and pregnancy hormone production begins. Your body is preparing for the incredible journey ahead.", icon: FiHeart, color: "violet" };
         if (week < 12) return { title: "Reflexes Develop", desc: "Baby can now open and close fists and curl toes. Fingernails and hair follicles are starting to form.", icon: FiActivity, color: "violet" };
         if (week < 20) return { title: "First Kicks!", desc: "You might start feeling those magical first flutters and kicks. This is called 'quickening'.", icon: FiActivity, color: "fuchsia" };
@@ -94,7 +131,6 @@ const PregnancyView = ({ prediction, today, scrollerDates, scrollRef }) => {
                 </div>
 
                 <div className="relative z-10 flex flex-col lg:flex-row items-center gap-8 md:gap-12">
-                    {/* Progress Ring */}
                     <div className="relative flex-shrink-0 group">
                         <div className="absolute inset-0 bg-violet-200 blur-3xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
                         <svg className="w-48 h-48 md:w-64 md:h-64 transform -rotate-90 relative z-10">
@@ -133,19 +169,25 @@ const PregnancyView = ({ prediction, today, scrollerDates, scrollRef }) => {
                     </div>
                 </div>
 
-                {/* Calendar Scroller */}
-                <div className="mt-10 md:mt-14 flex overflow-x-auto space-x-3 md:space-x-4 py-4 no-scrollbar snap-x" ref={scrollRef}>
-                    {scrollerDates.map((date, index) => {
-                        const isToday = isSameDay(date, today);
-                        return (
-                            <div key={index} className={`flex flex-col items-center justify-center min-w-[75px] md:min-w-[90px] h-[95px] md:h-[110px] rounded-[2rem] transition-all duration-300 snap-center border-2
-                                ${isToday ? "bg-violet-600 border-violet-400 text-white shadow-xl shadow-violet-200 -translate-y-1" : "bg-white border-slate-50 text-slate-400 hover:border-violet-100"}`}>
-                                <span className="text-[9px] font-black uppercase tracking-widest mb-1">{format(date, 'eee')}</span>
-                                <span className="text-2xl font-black">{date.getDate()}</span>
-                            </div>
-                        );
-                    })}
-                </div>
+{/* Calendar Scroller */}
+<div 
+    className="mt-10 md:mt-14 flex overflow-x-auto w-full space-x-3 md:space-x-4 py-4 no-scrollbar snap-x snap-mandatory relative" 
+    ref={scrollRef}
+>
+    {scrollerDates.map((date, index) => {
+        const isToday = isSameDay(date, today);
+        return (
+            <div 
+                key={index} 
+                ref={isToday ? todayElementRef : null}
+                className={`flex-shrink-0 flex flex-col items-center justify-center min-w-[75px] md:min-w-[90px] h-[95px] md:h-[110px] rounded-[2rem] transition-all duration-300 snap-center border-2
+                ${isToday ? "bg-violet-600 border-violet-400 text-white shadow-xl shadow-violet-200 -translate-y-1" : "bg-white border-slate-50 text-slate-400 hover:border-violet-100"}`}>
+                <span className="text-[9px] font-black uppercase tracking-widest mb-1">{format(date, 'eee')}</span>
+                <span className="text-2xl font-black">{date.getDate()}</span>
+            </div>
+        );
+    })}
+</div>
             </header>
 
             {/* BENTO GRID */}
@@ -212,64 +254,59 @@ const PregnancyView = ({ prediction, today, scrollerDates, scrollRef }) => {
                 </div>
             </div>
 
-            {/* UPGRADED MILESTONE SECTION */}
-           {/* REFINED MILESTONE SECTION - MOBILE OPTIMIZED */}
-<section 
-    ref={milestoneRef}
-    key={`milestone-${milestoneKey}`}
-    className="relative overflow-hidden bg-slate-900 rounded-[2.5rem] md:rounded-[4rem] p-6 py-10 md:p-16 lg:p-20 text-white"
->
-    {/* Decorative background elements - Reduced opacity for mobile */}
-    <div className="absolute top-0 right-0 w-64 h-64 bg-violet-600/10 blur-[80px] -mr-10 -mt-10 md:w-96 md:h-96 md:bg-violet-600/20 md:blur-[100px]"></div>
-    <div className="absolute bottom-0 left-0 w-64 h-64 bg-fuchsia-600/10 blur-[80px] -ml-10 -mb-10"></div>
-    
-    <div className="relative z-10 flex flex-col lg:flex-row items-center gap-8 md:gap-12">
-        <div className="w-full lg:w-2/3 space-y-5 md:space-y-8 text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 md:gap-3 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/10">
-                <FiStar className="text-violet-400 fill-violet-400" size={14} />
-                <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">Week {currentWeek} Magic</span>
-            </div>
-            
-            <h2 className="text-2xl md:text-5xl lg:text-6xl font-black leading-tight tracking-tight">
-                {milestone.title}
-            </h2>
-            
-            <p className="text-sm md:text-lg lg:text-xl text-slate-300 leading-relaxed font-medium max-w-2xl">
-                {milestone.desc}
-            </p>
+            {/* MILESTONE SECTION */}
+            <section 
+                ref={milestoneRef}
+                key={`milestone-${milestoneKey}`}
+                className="relative overflow-hidden bg-slate-900 rounded-[2.5rem] md:rounded-[4rem] p-6 py-10 md:p-16 lg:p-20 text-white"
+            >
+                <div className="absolute top-0 right-0 w-64 h-64 bg-violet-600/10 blur-[80px] -mr-10 -mt-10 md:w-96 md:h-96 md:bg-violet-600/20 md:blur-[100px]"></div>
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-fuchsia-600/10 blur-[80px] -ml-10 -mb-10"></div>
+                
+                <div className="relative z-10 flex flex-col lg:flex-row items-center gap-8 md:gap-12">
+                    <div className="w-full lg:w-2/3 space-y-5 md:space-y-8 text-center lg:text-left">
+                        <div className="inline-flex items-center gap-2 md:gap-3 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/10">
+                            <FiStar className="text-violet-400 fill-violet-400" size={14} />
+                            <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">Week {currentWeek} Magic</span>
+                        </div>
+                        
+                        <h2 className="text-2xl md:text-5xl lg:text-6xl font-black leading-tight tracking-tight">
+                            {milestone.title}
+                        </h2>
+                        
+                        <p className="text-sm md:text-lg lg:text-xl text-slate-300 leading-relaxed font-medium max-w-2xl">
+                            {milestone.desc}
+                        </p>
 
-            <div className="pt-2 md:pt-4 flex flex-col items-center lg:items-start gap-6">
-                <div className="w-full max-w-xs md:max-w-sm">
-                    <div className="flex justify-between text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">
-                        <span>Progress</span>
-                        <span className="text-violet-400">{Math.round(progressPercent)}%</span>
+                        <div className="pt-2 md:pt-4 flex flex-col items-center lg:items-start gap-6">
+                            <div className="w-full max-w-xs md:max-w-sm">
+                                <div className="flex justify-between text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">
+                                    <span>Progress</span>
+                                    <span className="text-violet-400">{Math.round(progressPercent)}%</span>
+                                </div>
+                                <div className="h-2.5 md:h-4 w-full bg-white/5 rounded-full p-0.5 md:p-1 border border-white/5">
+                                    <div 
+                                        className="h-full bg-gradient-to-r from-violet-600 via-fuchsia-500 to-violet-400 rounded-full transition-all duration-1000 relative"
+                                        style={{ width: `${progressPercent}%` }}
+                                    >
+                                        <div className="absolute inset-0 bg-white/20 animate-pulse rounded-full"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div className="h-2.5 md:h-4 w-full bg-white/5 rounded-full p-0.5 md:p-1 border border-white/5">
-                        <div 
-                            className="h-full bg-gradient-to-r from-violet-600 via-fuchsia-500 to-violet-400 rounded-full transition-all duration-1000 relative"
-                            style={{ width: `${progressPercent}%` }}
-                        >
-                            <div className="absolute inset-0 bg-white/20 animate-pulse rounded-full"></div>
+
+                    <div className="w-full lg:w-1/3 flex justify-center mt-4 lg:mt-0">
+                        <div className="relative">
+                            <div className="w-32 h-32 md:w-56 md:h-56 lg:w-64 lg:h-64 bg-gradient-to-br from-violet-500 to-fuchsia-600 rounded-[2rem] md:rounded-[3rem] rotate-6 flex items-center justify-center shadow-2xl relative z-10">
+                                <milestone.icon className="text-white -rotate-6 w-12 h-12 md:w-20 md:h-20" />
+                            </div>
+                            <div className="absolute inset-0 bg-violet-500/20 rounded-[2rem] md:rounded-[3rem] -rotate-3 scale-105 blur-sm"></div>
+                            <div className="absolute inset-0 border border-white/10 rounded-[2rem] md:rounded-[3rem] rotate-12"></div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        {/* Floating Icon - Scaled for Mobile */}
-        <div className="w-full lg:w-1/3 flex justify-center mt-4 lg:mt-0">
-            <div className="relative">
-                {/* Main Card: Smaller on mobile (w-32), larger on desktop (w-64) */}
-                <div className="w-32 h-32 md:w-56 md:h-56 lg:w-64 lg:h-64 bg-gradient-to-br from-violet-500 to-fuchsia-600 rounded-[2rem] md:rounded-[3rem] rotate-6 flex items-center justify-center shadow-2xl relative z-10">
-                    <milestone.icon className="text-white -rotate-6 w-12 h-12 md:w-20 md:h-20" />
-                </div>
-                {/* Background decorative layers */}
-                <div className="absolute inset-0 bg-violet-500/20 rounded-[2rem] md:rounded-[3rem] -rotate-3 scale-105 blur-sm"></div>
-                <div className="absolute inset-0 border border-white/10 rounded-[2rem] md:rounded-[3rem] rotate-12"></div>
-            </div>
-        </div>
-    </div>
-</section>
+            </section>
         </div>
     );
 };

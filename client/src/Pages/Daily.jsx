@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../Utils/axiosConfig';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Footer from "../Components/Footer";
 import MainHeader from "../Components/MainHeader";
-import { FiEdit3, FiCheck, FiSun, FiActivity, FiX, FiInfo } from 'react-icons/fi';
-import { motion, AnimatePresence } from 'framer-motion';
+import { FiEdit3, FiCheck, FiSun, FiLoader, FiActivity, FiX, FiInfo } from 'react-icons/fi';
+import { motion, AnimatePresence, color } from 'framer-motion';
 
 const DailyCheckIn = () => {
   const [selectedMood, setSelectedMood] = useState(null);
@@ -12,8 +12,10 @@ const DailyCheckIn = () => {
   const [note, setNote] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
-  
   const navigate = useNavigate();
+  const [isPregnant, setIsPregnant] = useState(() => {
+      return localStorage.getItem('isPregnant') === 'true';
+  });
 
   const moods = [
     { label: 'Calm', icon: '🧘', color: 'bg-blue-50', active: 'ring-blue-400 bg-blue-100' },
@@ -61,6 +63,12 @@ const DailyCheckIn = () => {
     }
   };
 
+  const colorShow = isPregnant ?  "text-violet-500" : "text-rose-500";
+  const colorShow2 = isPregnant ?  "bg-violet-50" : "bg-rose-50";
+  const borderShow = isPregnant ? "border-violet-200" : "border-rose-200";
+  const primaryBg = isPregnant ? "bg-violet-600" : "bg-rose-500";
+  const hoverBg = isPregnant ? "hover:bg-violet-700" : "hover:bg-rose-600";
+  const shadowColor = isPregnant ? "hover:shadow-violet-900/20" : "hover:shadow-rose-900/20";
   return (
     <div className="min-h-screen bg-[#FDFCFD] flex flex-col">
       <MainHeader />
@@ -90,11 +98,11 @@ const DailyCheckIn = () => {
           
           <div className="mb-8 md:mb-14 flex flex-col md:flex-row md:items-end justify-between gap-4 px-2">
             <div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-rose-50 rounded-full text-rose-500 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] mb-3 md:mb-4">
+              <div className={`inline-flex items-center gap-2 px-4 py-2 ${colorShow2} rounded-full ${colorShow} text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] mb-3 md:mb-4`}>
                 <FiSun className="animate-pulse" /> {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
               </div>
               <h2 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter">
-                Daily <span className="text-rose-500">Check-in</span>
+                Daily <span className={`${colorShow}`}>Check-in</span>
               </h2>
             </div>
           </div>
@@ -137,8 +145,9 @@ const DailyCheckIn = () => {
                       onClick={() => toggleSymptom(s)}
                       className={`px-5 py-3 md:px-8 md:py-4 rounded-xl md:rounded-2xl text-[10px] md:text-xs font-black transition-all border-2
                         ${selectedSymptoms.includes(s) 
-                          ? 'bg-slate-900 border-slate-900 text-white shadow-lg -translate-y-1' 
-                          : 'bg-white border-slate-50 text-slate-400 hover:border-rose-200'}`}
+                          ? `${colorShow2} ${borderShow} ${colorShow} shadow-md -translate-y-1` // Selected: Violet or Rose
+                          : `bg-white border-slate-50 text-slate-400 hover:border-slate-200`    // Unselected: Neutral
+                        }`}
                     >
                       {s}
                     </button>
@@ -162,29 +171,22 @@ const DailyCheckIn = () => {
                   />
                   
                   <button 
-                    onClick={handleSubmit}
-                    disabled={isSubmitting}
-                    className={`w-full mt-6 py-5 rounded-[2rem] font-black text-sm md:text-base uppercase tracking-widest shadow-xl transition-all duration-500 flex items-center justify-center gap-3 active:scale-95 ${
-                      isSubmitting ? 'bg-slate-200 text-slate-400' : 'bg-slate-900 hover:bg-rose-500 text-white shadow-slate-200 hover:shadow-rose-900/20'
-                    }`}
-                  >
-                    {isSubmitting ? "Syncing..." : "Complete Check-in"} <FiCheck />
-                  </button>
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  className={`w-full mt-6 py-5 rounded-[2rem] font-black text-sm md:text-base uppercase tracking-widest shadow-xl transition-all duration-500 flex items-center justify-center gap-3 active:scale-95 ${
+                    isSubmitting 
+                      ? 'bg-slate-200 text-slate-400 cursor-not-allowed' 
+                      : `${primaryBg} ${hoverBg} text-white shadow-slate-200 ${shadowColor}`
+                  }`}
+                >
+                  {isSubmitting ? (
+                    <>Syncing... <FiLoader className="animate-spin" /></>
+                  ) : (
+                    <>Complete Check-in <FiCheck /></>
+                  )}
+                </button>
                 </section>
 
-                <div className="p-8 bg-slate-900 rounded-[2.5rem] md:rounded-[3rem] text-white relative overflow-hidden group border border-slate-800">
-                  <div className="relative z-10">
-                     <div className="flex items-center gap-2 mb-4">
-                        <div className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
-                        <span className="text-rose-200 text-[9px] font-black uppercase tracking-[0.2em]">Phase Insight</span>
-                     </div>
-                     <h4 className="text-lg font-bold leading-tight mb-2">Follicular Phase.</h4>
-                     <p className="text-slate-400 text-[11px] leading-relaxed font-medium">
-                        Your energy is naturally increasing. Perfect day for high-intensity work.
-                     </p>
-                  </div>
-                  <FiActivity className="text-7xl text-white/5 absolute -right-4 -bottom-4" />
-                </div>
               </div>
             </div>
 

@@ -75,7 +75,7 @@ const userLogIn = async (req, res) => {
                 return res.status(400).json({status: false, message: "Invalid Credintails"});
             }
         } else {
-            return res.status(404).json({status: false, message: "Cannot find your account"});
+            return res.status(404).json({status: false, message: "Cannot find your account"}); 
         }
         
     } catch(err) {
@@ -128,7 +128,7 @@ const getTrackingData = async (req, res) => {
             res.json({
             currentPhase,
             nextPeriodIn: differenceInDays((prediction.nextPeriodDate), today),
-            prediction, 
+            prediction,  
             fullCycleData,
             avgCycleLength : user.avgCycleLength,
             pregnant: user.pregnant
