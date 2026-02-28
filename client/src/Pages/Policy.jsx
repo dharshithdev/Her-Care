@@ -42,11 +42,11 @@ const Privacy = () => {
             <main className="max-w-3xl mx-auto px-6 pt-10 space-y-10">
                 {/* Hero Section */}
                 <section className="text-center space-y-4">
-                    <div className="inline-flex items-center justify-center w-20 h-20 bg-violet-100 rounded-[2rem] text-violet-600 mb-4 animate-bounce" style={{ animationDuration: '3s' }}>
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-pink-100 rounded-[2rem] text-pink-600 mb-4 animate-bounce" style={{ animationDuration: '3s' }}>
                         <FiShield size={40} />
                     </div>
                     <h2 className="text-3xl md:text-4xl font-black text-slate-900 leading-tight">
-                        Our Privacy <span className="text-violet-500">Promise</span>
+                        Our Privacy <span className="text-pink-500">Promise</span>
                     </h2>
                     <p className="text-slate-500 font-medium leading-relaxed">
                         Last Updated: February 2026. We prioritize your trust above everything else. 
@@ -106,14 +106,22 @@ const Privacy = () => {
                 {/* Footer Note */}
                 <footer className="text-center py-10 space-y-4">
                     <p className="text-xs text-slate-400 font-bold uppercase tracking-[0.2em]">
-                        Questions? Contact our Data Protection Officer
+                        Questions? Contact our Data Protection Team
                     </p>
                     <a 
                         href="mailto:privacy@yourdomain.com" 
-                        className="text-violet-600 font-black hover:underline"
+                        className="text-pink-600 font-black hover:underline"
                     >
-                        privacy@yourdomain.com
+                        privacy@hercare.com
                     </a>
+                                        <div className="mt-6 flex justify-center gap-4">
+                        <button 
+                            onClick={() => navigate('/')}
+                            className="px-8 py-3 bg-pink-600 text-white font-black rounded-full shadow-lg shadow-violet-200 hover:scale-105 transition-transform"
+                        >
+                            Ok, I Understand
+                        </button>
+                    </div>
                 </footer>
             </main>
         </div>

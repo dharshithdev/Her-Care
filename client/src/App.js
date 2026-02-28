@@ -16,6 +16,7 @@ import Luna from './Pages/Luna';
 import PregencyPage from './Pages/Pregency';
 import PregnancyMode from './Pages/PregencyMode';
 import Privacy from './Pages/Policy';
+import Terms from './Pages/Terms';
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
         <Route path="/pregency" element={<PregencyPage />} />
         <Route path="/pregencymode" element={<PregnancyMode />} />
         <Route path="/policy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
       </Routes>
   );
 }

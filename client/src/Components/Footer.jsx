@@ -68,7 +68,7 @@ const Footer = () => {
               <li>
                 <button onClick={() => handleNavClick('path', '/aboutus')} className="hover:text-rose-500 transition-colors uppercase">About</button>
               </li>
-              <li><a href="/privacy" className="hover:text-rose-500 transition-colors">Privacy</a></li>
+              <li><a href="/policy" className="hover:text-rose-500 transition-colors">Privacy</a></li>
               <li><a href="/support" className="hover:text-rose-500 transition-colors">Support</a></li>
             </ul>
           </nav>
