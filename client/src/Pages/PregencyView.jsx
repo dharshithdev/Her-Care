@@ -60,7 +60,7 @@ const PregnancyView = ({ today, scrollerDates, scrollRef }) => {
 
 useEffect(() => {
     if (scrollRef.current && !loading) {
-        const timer = setTimeout(() => { 
+        const timer = setTimeout(() => {
             if (scrollRef.current) {
                 const scrollTo = scrollRef.current.children[7]?.offsetLeft - 150;
                 scrollRef.current.scrollLeft = scrollTo;

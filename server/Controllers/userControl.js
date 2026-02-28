@@ -7,6 +7,7 @@ const Appointment = require('../Model/Appointment');
 const Pregnant = require('../Model/Pregnant');
 const {calculateCycleData, findMenstrualLength} = require('../Utils/CycleLogic');
 const { differenceInDays, startOfDay, format } = require('date-fns'); 
+const mongoose = require('mongoose');
 require("dotenv").config()
 
 const registerUser = async (req, res) => {
@@ -294,6 +295,36 @@ const getPregencyTrackingData = async(req, res) => {
     }
 }
 
+const removePregnancyMode = async (req, res) => {
+    try {
+        const userId = req.user._id;
+
+        // 1. Update User
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { pregnant: false },
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        // 2. Delete Pregnancy Record
+        await Pregnant.findOneAndDelete({ userId: userId, status: 'active' });
+
+        res.status(200).json({
+            success: true,
+            message: "Successfully switched to Normal Mode",
+            pregnant: false
+        });
+
+    } catch (error) {
+        console.error("Switch Mode Error:", error);
+        res.status(500).json({ success: false, message: "Error switching modes" });
+    }
+};
+
 module.exports = {registerUser, userLogIn, getTrackingData, logActualPeriod, getUserProfile, getUserOrders,
-                getUserAppointments, startPregnancy, getPregencyTrackingData
+                getUserAppointments, startPregnancy, getPregencyTrackingData, removePregnancyMode
 };
