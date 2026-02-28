@@ -15,6 +15,8 @@ import Account from './Pages/Account';
 import Luna from './Pages/Luna';
 import PregencyPage from './Pages/Pregency';
 import PregnancyMode from './Pages/PregencyMode';
+import Privacy from './Pages/Policy';
+
 function App() {
   return (
       <Routes>
@@ -34,6 +36,7 @@ function App() {
         <Route path="/luna" element={<Luna />} />
         <Route path="/pregency" element={<PregencyPage />} />
         <Route path="/pregencymode" element={<PregnancyMode />} />
+        <Route path="/policy" element={<Privacy />} />
       </Routes>
   );
 }
