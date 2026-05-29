@@ -3,6 +3,7 @@ const cors = require("cors");
 const mongoose = require("mongoose")
 require("dotenv").config();
 const path = require("path");
+const {connectToDB} = require("./Config/connect");
 
 const PORT = process.env.PORT || 5000;
 
@@ -30,11 +31,8 @@ app.use((err, req, res, next) => {
     });
 });
 
-mongoose.connect(process.env.MONGO_URI).then(() => {
-    console.log(`Connected to MongoDB`);
+connectToDB().then(() => {
     app.listen(PORT, () => {
-        console.log(`Server running on PORT ${PORT}`);
+        console.log("Server Running on PORT ", PORT);
     });
-}).catch((err) => {
-    console.log(`Server failed to Connect : ${err}`);
 });
